@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import Layout from './components/layout/Layout';
+import Hero from './components/sections/Hero';
+import About from './components/sections/About';
+import Skills from './components/sections/Skills';
+import Projects from './components/sections/Projects';
+import Experience from './components/sections/Experience';
+import Testimonials from './components/sections/Testimonials';
+import Contact from './components/sections/Contact';
 
-function App() {
+const App: React.FC = () => {
+  // Preload any necessary assets or data
+  useEffect(() => {
+    // You can add preloading logic here if needed
+    document.title = 'Aryan Gaur | Software Engineer';
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Layout>
+      <Hero />
+      <About />
+      <Skills />
+      <Projects />
+      <Experience />
+      <Testimonials />
+      <Contact />
+    </Layout>
   );
-}
+};
 
 export default App;
