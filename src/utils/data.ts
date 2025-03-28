@@ -39,7 +39,7 @@ export const projects: Project[] = [
     title: 'Personal Portfolio',
     description: 'A modern, responsive portfolio website built with React and TypeScript to showcase my projects, skills, and experience.',
     technologies: ['React', 'TypeScript', 'Styled Components', 'Framer Motion'],
-    image: '/images/projects/portfolio.jpg',
+    image: '/images/projects/Portfolio.jpg',
     githubUrl: 'https://github.com/AryanGaur123/aryan-portfolio',
     liveUrl: 'https://aryangaur.com/',
     category: 'web'
@@ -59,7 +59,7 @@ export const projects: Project[] = [
     title: 'Credit Card Manager',
     description: 'A secure application to help users manage their credit cards, track expenses, set payment reminders, and visualize spending patterns.',
     technologies: ['Java', 'Spring Boot', 'Spring Data JPA', 'MySQL', 'RESTful API', 'CSS', 'JavaScript', 'Bootstrap 5', 'Fetch API', 'Maven'],
-    image: '/images/projects/creditcard.jpg',
+    image: '/images/projects/CreditCard.jpg',
     githubUrl: 'https://github.com/AryanGaur123/CreditCardManager',
     category: 'web'
   },
@@ -68,7 +68,7 @@ export const projects: Project[] = [
     title: 'Snake Game',
     description: 'A classic Snake game built with Java featuring arrow key controls, score tracking, game over screen with restart option, and classic Snake gameplay mechanics.',
     technologies: ['Java', 'Swing GUI', 'AWT'],
-    image: '/images/projects/snakegame.jpg',
+    image: '/images/projects/SnakeGame.jpg',
     githubUrl: 'https://github.com/AryanGaur123/Aryan-s-SnakeGame',
     category: 'game'
   }
