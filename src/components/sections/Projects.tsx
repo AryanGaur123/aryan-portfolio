@@ -199,8 +199,6 @@ const Projects: React.FC = () => {
   const { ref: titleRef, controls: titleControls } = useScrollAnimation();
   const { ref: projectsRef, controls: projectsControls } = useScrollAnimation(0.1);
 
-  // Categories and filtering removed as requested
-
   return (
     <ProjectsSection id="projects">
       <Container>
@@ -224,52 +222,72 @@ const Projects: React.FC = () => {
               visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.2 } }
             }}
           >
-            Check back later to see my projects as they are being updated
+            Explore my recent projects and applications
           </SectionSubtitle>
         </div>
 
-        <motion.div
-          ref={projectsRef}
-          style={{
-            textAlign: 'center',
-            padding: '3rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '12px',
-            marginTop: '2rem'
-          }}
+        <ProjectsGrid
+          ref={projectsRef as React.RefObject<HTMLDivElement>}
           initial="hidden"
           animate={projectsControls}
           variants={{
             hidden: { opacity: 0 },
-            visible: { opacity: 1, transition: { duration: 0.5 } }
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.3,
+              }
+            }
           }}
         >
-          <motion.h3
-            style={{
-              fontSize: '1.5rem',
-              marginBottom: '1rem',
-              color: '#f8f9fa'
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            Projects Coming Soon
-          </motion.h3>
-          <motion.p
-            style={{
-              fontSize: '1.1rem',
-              color: '#adb5bd',
-              maxWidth: '600px',
-              margin: '0 auto'
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            I'm currently updating my portfolio with new projects. Please check back later to see my latest work!
-          </motion.p>
-        </motion.div>
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+              }}
+            >
+              <ProjectImage>
+                <StyledProjectImage style={{ backgroundImage: `url(${project.image})` }} />
+              </ProjectImage>
+              <ProjectContent>
+                <ProjectTitle>{project.title}</ProjectTitle>
+                <ProjectDescription>{project.description}</ProjectDescription>
+                <TechStack>
+                  {project.technologies.map((tech, index) => (
+                    <TechTag key={index}>{tech}</TechTag>
+                  ))}
+                </TechStack>
+                <ProjectLinks>
+                  {project.githubUrl && (
+                    <ProjectLink 
+                      href={project.githubUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FaGithub /> GitHub
+                    </ProjectLink>
+                  )}
+                  {project.liveUrl && (
+                    <ProjectLink 
+                      href={project.liveUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FaExternalLinkAlt /> Live Demo
+                    </ProjectLink>
+                  )}
+                </ProjectLinks>
+              </ProjectContent>
+            </ProjectCard>
+          ))}
+        </ProjectsGrid>
       </Container>
     </ProjectsSection>
   );

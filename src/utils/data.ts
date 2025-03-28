@@ -35,60 +35,43 @@ export const skills: Skill[] = [
 
 export const projects: Project[] = [
   {
-    id: 'project1',
-    title: 'E-Commerce Platform',
-    description: 'A full-stack e-commerce platform with user authentication, product catalog, cart functionality, and payment integration.',
-    technologies: ['React', 'Node.js', 'Express', 'MongoDB', 'Redux', 'Stripe'],
-    image: '/images/projects/ecommerce.jpg',
-    githubUrl: 'https://github.com/aryangaur/ecommerce-platform',
-    liveUrl: 'https://ecommerce-platform.vercel.app',
-    featured: true,
-    category: 'web'
-  },
-  {
-    id: 'project2',
-    title: 'AI Image Generator',
-    description: 'An application that uses machine learning to generate unique images based on text prompts.',
-    technologies: ['React', 'Python', 'TensorFlow', 'Flask', 'OpenAI API'],
-    image: '/images/projects/ai-image.jpg',
-    githubUrl: 'https://github.com/aryangaur/ai-image-generator',
-    liveUrl: 'https://ai-image-generator.vercel.app',
-    featured: true,
-    category: 'web'
-  },
-  {
-    id: 'project3',
-    title: 'Task Management App',
-    description: 'A collaborative task management application with real-time updates, task assignment, and progress tracking.',
-    technologies: ['React', 'TypeScript', 'Firebase', 'Styled Components'],
-    image: '/images/projects/task-app.jpg',
-    githubUrl: 'https://github.com/aryangaur/task-management',
-    liveUrl: 'https://task-management-app.vercel.app',
-    featured: false,
-    category: 'web'
-  },
-  {
-    id: 'project4',
-    title: 'Portfolio Website',
-    description: 'A modern and interactive portfolio website showcasing projects and skills.',
-    technologies: ['React', 'TypeScript', 'Three.js', 'Framer Motion', 'Styled Components'],
+    id: 'portfolio',
+    title: 'Personal Portfolio',
+    description: 'A modern, responsive portfolio website built with React and TypeScript to showcase my projects, skills, and experience.',
+    technologies: ['React', 'TypeScript', 'Styled Components', 'Framer Motion'],
     image: '/images/projects/portfolio.jpg',
-    githubUrl: 'https://github.com/aryangaur/portfolio',
+    githubUrl: 'https://github.com/AryanGaur123/aryan-portfolio',
     liveUrl: 'https://aryangaur.dev',
-    featured: false,
     category: 'web'
   },
   {
-    id: 'project5',
-    title: 'Data Visualization Dashboard',
-    description: 'An interactive dashboard for visualizing complex datasets with filtering and analysis capabilities.',
-    technologies: ['React', 'D3.js', 'Node.js', 'Express', 'MongoDB'],
-    image: '/images/projects/data-viz.jpg',
-    githubUrl: 'https://github.com/aryangaur/data-visualization',
-    liveUrl: 'https://data-visualization-dashboard.vercel.app',
-    featured: true,
+    id: 'fantasyfootball',
+    title: 'Fantasy Football Dashboard',
+    description: 'An interactive dashboard for fantasy football enthusiasts to track player stats, team performance, and league standings in real-time.',
+    technologies: ['React', 'TypeScript', 'Axios', 'Webpack', 'CSS3', 'Git'],
+    image: '/images/projects/fantasyfootball.jpg',
+    githubUrl: 'https://github.com/AryanGaur123/FantasyFootballDashboard',
+    liveUrl: 'https://fantasy-football-dashboard.vercel.app/',
     category: 'web'
   },
+  {
+    id: 'creditcardmanager',
+    title: 'Credit Card Manager',
+    description: 'A secure application to help users manage their credit cards, track expenses, set payment reminders, and visualize spending patterns.',
+    technologies: ['Java', 'Spring Boot', 'Spring Data JPA', 'MySQL', 'RESTful API', 'CSS', 'JavaScript', 'Bootstrap 5', 'Fetch API', 'Maven'],
+    image: '/images/projects/creditcard.jpg',
+    githubUrl: 'https://github.com/AryanGaur123/CreditCardManager',
+    category: 'web'
+  },
+  {
+    id: 'snakegame',
+    title: 'Snake Game',
+    description: 'A classic Snake game built with Java featuring arrow key controls, score tracking, game over screen with restart option, and classic Snake gameplay mechanics.',
+    technologies: ['Java', 'Swing GUI', 'AWT'],
+    image: '/images/projects/snakegame.jpg',
+    githubUrl: 'https://github.com/AryanGaur123/Aryan-s-SnakeGame',
+    category: 'game'
+  }
 ];
 
 export const experiences: Experience[] = [

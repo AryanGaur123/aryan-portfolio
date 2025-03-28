@@ -193,7 +193,7 @@ const Experience: React.FC = () => {
         <Container>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <SectionTitle
-              ref={titleRef}
+              ref={titleRef as React.RefObject<HTMLHeadingElement>}
               initial="hidden"
               animate={titleControls}
               variants={{
@@ -215,7 +215,7 @@ const Experience: React.FC = () => {
             </SectionSubtitle>
           </div>
 
-          <TimelineContainer ref={expRef}>
+          <TimelineContainer ref={expRef as React.RefObject<HTMLDivElement>}>
             {experiences.map((exp, index) => (
               <TimelineItem
                 key={exp.id}
@@ -264,7 +264,7 @@ const Experience: React.FC = () => {
         <Container>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <SectionTitle
-              ref={eduTitleRef}
+              ref={eduTitleRef as React.RefObject<HTMLHeadingElement>}
               initial="hidden"
               animate={eduTitleControls}
               variants={{
@@ -286,7 +286,7 @@ const Experience: React.FC = () => {
             </SectionSubtitle>
           </div>
 
-          <TimelineContainer ref={eduRef}>
+          <TimelineContainer ref={eduRef as React.RefObject<HTMLDivElement>}>
             {education.map((edu, index) => (
               <TimelineItem
                 key={edu.id}
@@ -311,13 +311,15 @@ const Experience: React.FC = () => {
                     <TimelineDuration>{edu.duration}</TimelineDuration>
                   </TimelineHeader>
                   <p style={{ color: '#94A3B8', lineHeight: 1.6 }}>{edu.description}</p>
-                  <TimelineDescription>
-                    {edu.achievements.map((item, i) => (
-                      <TimelineDescriptionItem key={i}>
-                        {item}
-                      </TimelineDescriptionItem>
-                    ))}
-                  </TimelineDescription>
+                  {edu.achievements && (
+                    <TimelineDescription>
+                      {edu.achievements.map((item, i) => (
+                        <TimelineDescriptionItem key={i}>
+                          {item}
+                        </TimelineDescriptionItem>
+                      ))}
+                    </TimelineDescription>
+                  )}
                 </TimelineContent>
               </TimelineItem>
             ))}

@@ -16,7 +16,8 @@ export interface Skill {
   name: string;
   icon: string;
   category: string;
-  proficiency: number;
+  level: number;
+  proficiency?: number;
 }
 
 export interface Project {
@@ -35,7 +36,7 @@ export interface Experience {
   company: string;
   position: string;
   duration: string;
-  location: string;
+  location?: string;
   description: string[];
   technologies: string[];
 }
@@ -44,10 +45,11 @@ export interface Education {
   id: string;
   institution: string;
   degree: string;
-  field: string;
+  field?: string;
   duration: string;
-  location: string;
+  location?: string;
   description: string;
+  achievements?: string[];
 }
 
 export interface Testimonial {
