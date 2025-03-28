@@ -246,7 +246,7 @@ const Contact: React.FC = () => {
       case 'FaEnvelope':
         return <FaEnvelope />;
       default:
-        return null;
+        return <FaEnvelope />;  // Default to envelope icon instead of null
     }
   };
   
