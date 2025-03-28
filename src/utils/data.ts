@@ -41,7 +41,7 @@ export const projects: Project[] = [
     technologies: ['React', 'TypeScript', 'Styled Components', 'Framer Motion'],
     image: '/images/projects/portfolio.jpg',
     githubUrl: 'https://github.com/AryanGaur123/aryan-portfolio',
-    liveUrl: 'https://aryangaur.dev',
+    liveUrl: 'https://aryangaur.com/',
     category: 'web'
   },
   {
