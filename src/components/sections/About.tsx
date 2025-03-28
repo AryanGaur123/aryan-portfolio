@@ -179,7 +179,7 @@ const About: React.FC = () => {
               href="/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              download="Aryan_Gaur_Resume.pdf"
+              download="resume.pdf"
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.2 } }
