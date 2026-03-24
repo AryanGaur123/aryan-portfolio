@@ -8,7 +8,7 @@ const Contact: React.FC = () => {
         <div className="contact-inner" data-aos="fade-up">
           <p className="section-label">Let's Talk</p>
           <h2 className="section-title contact-title">
-            Open to new <span className="gradient-text">opportunities.</span>
+            Let's <span className="gradient-text">Connect.</span>
           </h2>
           <p className="contact-desc">
             Whether you have a role in mind, a project idea, or just want to connect —

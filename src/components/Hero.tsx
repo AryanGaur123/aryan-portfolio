@@ -107,11 +107,6 @@ const Hero: React.FC = () => {
       <canvas ref={canvasRef} className="hero-canvas" />
 
       <div className="hero-content container">
-        <div className="hero-tag">
-          <span className="hero-tag-dot" />
-          Available for opportunities
-        </div>
-
         <h1 className="hero-name">
           <span>Aryan</span>
           <span className="gradient-text"> Gaur</span>
