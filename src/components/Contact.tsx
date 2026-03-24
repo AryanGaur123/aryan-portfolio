@@ -24,7 +24,7 @@ const Contact: React.FC = () => {
 
           <div className="contact-socials">
             <a
-              href="https://github.com/gauraryan1027"
+              href="https://github.com/AryanGaur123"
               target="_blank"
               rel="noopener noreferrer"
               className="social-link"
@@ -35,7 +35,7 @@ const Contact: React.FC = () => {
               GitHub
             </a>
             <a
-              href="https://linkedin.com/in/aryangaur"
+              href="https://linkedin.com/in/gauraryan"
               target="_blank"
               rel="noopener noreferrer"
               className="social-link"
