@@ -53,7 +53,7 @@ const Header: React.FC = () => {
             </a>
           ))}
           <a
-            href="https://github.com/gauraryan1027"
+            href="https://github.com/AryanGaur123"
             target="_blank"
             rel="noopener noreferrer"
             className="nav-cta"

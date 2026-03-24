@@ -12,40 +12,29 @@ interface ExperienceItem {
 
 const experiences: ExperienceItem[] = [
   {
-    role: 'AI Engineering Intern',
-    company: 'Tech Company',
-    period: 'Summer 2025',
+    role: 'AI Engineer Intern — GenAI Team',
+    company: 'SanDisk',
+    period: 'May 2025 – Present',
     type: 'Internship',
     description: [
-      'Built and deployed LLM-powered features using RAG pipelines, reducing support ticket volume by 30%.',
-      'Designed and optimized vector search infrastructure using Pinecone and OpenAI embeddings.',
-      'Collaborated with product team to ship AI features used by thousands of users.',
+      'Built complex RAG pipelines for internal knowledge retrieval, enabling engineers to query proprietary documentation with high accuracy.',
+      'Designed multi-agent architectures using LangGraph with stateful orchestration, supporting memory, planning, and tool-use across deep agent systems.',
+      'Integrated LangFuse observability for end-to-end LLM tracing and evaluation across all GenAI workflows.',
+      'Developed full-stack tooling with React, TypeScript, and FastAPI to surface AI capabilities to internal teams.',
     ],
-    tech: ['Python', 'LangChain', 'Pinecone', 'OpenAI', 'FastAPI'],
+    tech: ['Python', 'LangGraph', 'LangChain', 'LangFuse', 'RAG', 'FastAPI', 'React', 'TypeScript'],
   },
   {
-    role: 'Software Engineering Intern',
-    company: 'Startup',
-    period: 'Summer 2024',
-    type: 'Internship',
-    description: [
-      'Developed React components and REST APIs for a B2B SaaS platform serving enterprise clients.',
-      'Improved frontend performance by 40% through code splitting and memoization.',
-      'Implemented CI/CD pipeline with GitHub Actions and containerized services with Docker.',
-    ],
-    tech: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker'],
-  },
-  {
-    role: 'CS/CE Student',
-    company: 'San José State University',
-    period: '2022 – Present',
+    role: 'B.S. Computer Science',
+    company: 'San Jose State University (SJSU)',
+    period: '2023 – May 2027',
     type: 'Education',
     description: [
-      'Studying Computer Engineering with a focus on AI/ML and systems programming.',
-      'Built multiple class projects spanning embedded systems, data structures, and machine learning.',
-      'Active member of the SJSU Engineering club and open-source community.',
+      'Studying Computer Science with a focus on AI/ML, algorithms, and systems programming.',
+      'Building AI and full-stack projects spanning LLM engineering, multi-agent systems, and web development.',
+      'Expected graduation: May 2027.',
     ],
-    tech: ['C++', 'Python', 'Assembly', 'VHDL', 'MATLAB'],
+    tech: ['Python', 'C++', 'Java', 'SQL', 'Algorithms', 'Data Structures'],
   },
 ];
 

@@ -18,14 +18,14 @@ const About: React.FC = () => {
               learning and software engineering, turning complex ideas into elegant, scalable products.
             </p>
             <p className="about-bio">
-              Currently studying Computer Engineering at SJSU, I spend my time exploring the latest in
-              LLMs, computer vision, and full-stack development. I believe great software is both technically
+              Currently studying Computer Science at SJSU and interning on the GenAI team at SanDisk, I spend my time exploring the latest in
+              LLMs, multi-agent systems, RAG pipelines, and full-stack development. I believe great software is both technically
               sound and beautifully crafted.
             </p>
 
             <div className="about-links">
               <a
-                href="https://github.com/gauraryan1027"
+                href="https://github.com/AryanGaur123"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="about-link"
@@ -36,7 +36,7 @@ const About: React.FC = () => {
                 GitHub
               </a>
               <a
-                href="https://linkedin.com/in/aryangaur"
+                href="https://linkedin.com/in/gauraryan"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="about-link"
@@ -67,11 +67,11 @@ const About: React.FC = () => {
                 <div className="code-line"><span className="c-key">const</span> <span className="c-var">aryan</span> = <span className="c-punc">{'{'}</span></div>
                 <div className="code-line indent"><span className="c-prop">role</span>: <span className="c-str">"AI Engineer & SWE"</span>,</div>
                 <div className="code-line indent"><span className="c-prop">location</span>: <span className="c-str">"San Jose, CA"</span>,</div>
-                <div className="code-line indent"><span className="c-prop">education</span>: <span className="c-str">"SJSU · CS/CE"</span>,</div>
+                <div className="code-line indent"><span className="c-prop">education</span>: <span className="c-str">"SJSU · B.S. CS"</span>,</div>
                 <div className="code-line indent"><span className="c-prop">focus</span>: <span className="c-arr">[</span></div>
                 <div className="code-line indent2"><span className="c-str">"Machine Learning"</span>,</div>
-                <div className="code-line indent2"><span className="c-str">"Full-Stack Dev"</span>,</div>
-                <div className="code-line indent2"><span className="c-str">"Computer Vision"</span>,</div>
+                <div className="code-line indent2"><span className="c-str">"LangGraph / RAG"</span>,</div>
+                <div className="code-line indent2"><span className="c-str">"Multi-Agent Systems"</span>,</div>
                 <div className="code-line indent"><span className="c-arr">]</span>,</div>
                 <div className="code-line indent"><span className="c-prop">openTo</span>: <span className="c-bool">true</span>,</div>
                 <div className="code-line"><span className="c-punc">{'}'}</span><span className="c-cursor">|</span></div>

@@ -13,25 +13,25 @@ const skillGroups: SkillGroup[] = [
     category: 'AI / ML',
     icon: '🧠',
     color: '#7c3aed',
-    skills: ['PyTorch', 'TensorFlow', 'Transformers', 'LangChain', 'scikit-learn', 'OpenCV', 'YOLO', 'RAG'],
+    skills: ['LangChain', 'LangGraph', 'LangFuse', 'RAG', 'Multi-Agent Systems', 'Prompt Engineering', 'OpenAI API', 'Embeddings', 'ChromaDB', 'Pinecone'],
   },
   {
     category: 'Languages',
     icon: '⌨️',
     color: '#00d4ff',
-    skills: ['Python', 'TypeScript', 'JavaScript', 'C++', 'SQL', 'Bash'],
+    skills: ['Python', 'TypeScript', 'JavaScript', 'SQL'],
   },
   {
     category: 'Frontend',
     icon: '🎨',
     color: '#f472b6',
-    skills: ['React', 'Next.js', 'Tailwind CSS', 'HTML/CSS', 'Framer Motion'],
+    skills: ['React', 'Next.js', 'Tailwind CSS'],
   },
   {
-    category: 'Backend & Cloud',
+    category: 'Backend & DevOps',
     icon: '⚙️',
     color: '#06b6d4',
-    skills: ['Node.js', 'FastAPI', 'PostgreSQL', 'MongoDB', 'Docker', 'AWS', 'GCP', 'Redis'],
+    skills: ['FastAPI', 'Node.js', 'REST APIs', 'Docker', 'Git', 'GitHub Actions', 'Linux', 'PostgreSQL', 'MongoDB', 'Redis'],
   },
 ];
 
