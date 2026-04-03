@@ -3,21 +3,48 @@ body, html, #root, .App {
   margin: 0;
   padding: 0;
   background-color: #030712;
+  cursor: none; /* use custom cursor */
+}
+
+@media (pointer: coarse) {
+  body { cursor: auto; }
 }
 
 main {
   padding-top: 0;
 }
 
-/* Ambient background grid */
+/* ── Ambient background grid ─────────────────── */
 .App::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(0, 212, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.025) 1px, transparent 1px);
   background-size: 60px 60px;
   pointer-events: none;
   z-index: 0;
+}
+
+/* ── Radial vignette ─────────────────────────── */
+.App::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, transparent 40%, rgba(3, 7, 18, 0.6) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Smooth section separators ───────────────── */
+section {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Selection highlight ─────────────────────── */
+::selection {
+  background: rgba(0, 212, 255, 0.2);
+  color: #f1f5f9;
 }

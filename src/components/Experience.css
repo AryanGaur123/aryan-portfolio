@@ -1,124 +1,126 @@
-/* Experience.css */
 .experience {
-  background: var(--bg-secondary);
+  padding: 7rem 0;
   position: relative;
 }
 
-.experience::before,
-.experience::after {
+/* ── Timeline container ──────────────────────── */
+.timeline {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.timeline::before {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+  left: 22px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--color-blue), var(--color-purple), transparent);
+  border-radius: 2px;
 }
 
-.experience::before { top: 0; }
-.experience::after { bottom: 0; }
-
-/* Timeline layout */
-.timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
+/* ── Item ────────────────────────────────────── */
 .timeline-item {
-  display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: 1.5rem;
-  padding-bottom: 2.5rem;
+  display: flex;
+  gap: 2rem;
+  padding-bottom: 3rem;
+  position: relative;
 }
 
-.timeline-item:last-child {
-  padding-bottom: 0;
-}
+.timeline-item:last-child { padding-bottom: 0; }
 
-/* Connector */
+/* ── Connector ───────────────────────────────── */
 .timeline-connector {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 1.75rem;
+  width: 46px;
+  z-index: 1;
 }
 
 .timeline-dot {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: var(--gradient-primary);
-  box-shadow: 0 0 16px rgba(0, 212, 255, 0.6);
+  background: var(--color-blue);
+  box-shadow: 0 0 18px var(--color-blue), 0 0 6px var(--color-blue);
+  border: 2px solid var(--bg-primary);
+  margin-top: 2px;
   flex-shrink: 0;
-  position: relative;
 }
 
-.timeline-dot::before {
+/* ── Card ────────────────────────────────────── */
+.timeline-card {
+  flex: 1;
+  background: rgba(8, 13, 26, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 2rem 2rem 1.75rem;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.timeline-card::before {
   content: '';
   position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  animation: dotRing 2s ease-in-out infinite;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-blue), var(--color-purple));
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
-@keyframes dotRing {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.15); }
-}
-
-.timeline-line {
-  width: 1px;
-  flex: 1;
-  margin-top: 8px;
-  background: linear-gradient(to bottom, rgba(0, 212, 255, 0.4), rgba(124, 58, 237, 0.2));
-  min-height: 40px;
-}
-
-/* Card */
-.timeline-card {
-  background: var(--bg-card);
-  border: var(--border-glass);
-  border-radius: var(--radius);
-  padding: 1.75rem;
-  backdrop-filter: blur(20px);
-  transition: var(--transition);
-}
-
+.timeline-card:hover::before { opacity: 1; }
 .timeline-card:hover {
-  border-color: rgba(0, 212, 255, 0.2);
-  transform: translateX(4px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  transform: translateY(-4px) translateX(4px);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
 }
 
+/* ── Header ──────────────────────────────────── */
 .timeline-card-header {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   margin-bottom: 1.25rem;
-  gap: 1rem;
 }
 
 .timeline-type {
+  display: inline-block;
   font-family: 'Fira Code', monospace;
   font-size: 0.72rem;
+  font-weight: 600;
   color: var(--color-blue);
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 6px;
+  padding: 0.2rem 0.65rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  display: block;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
 }
 
 .timeline-role {
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-primary);
+  letter-spacing: -0.02em;
   margin-bottom: 0.2rem;
 }
 
 .timeline-company {
   font-size: 0.9rem;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .timeline-period {
@@ -126,14 +128,13 @@
   font-size: 0.78rem;
   color: var(--text-muted);
   white-space: nowrap;
-  padding: 0.3rem 0.75rem;
   background: rgba(255, 255, 255, 0.04);
-  border: var(--border-glass);
-  border-radius: 6px;
-  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 0.3rem 0.7rem;
 }
 
-/* Bullets */
+/* ── Bullets ─────────────────────────────────── */
 .timeline-bullets {
   list-style: none;
   display: flex;
@@ -145,40 +146,33 @@
 .timeline-bullets li {
   font-size: 0.9rem;
   color: var(--text-secondary);
-  line-height: 1.6;
-  padding-left: 1.25rem;
+  line-height: 1.7;
+  padding-left: 1.3rem;
   position: relative;
 }
 
 .timeline-bullets li::before {
-  content: '›';
+  content: '';
   position: absolute;
   left: 0;
-  color: var(--color-blue);
-  font-size: 1rem;
-  line-height: 1.5;
+  top: 0.7em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-blue);
+  box-shadow: 0 0 6px var(--color-blue);
 }
 
-/* Tech badges (reuse from projects) */
+/* ── Tech ────────────────────────────────────── */
 .timeline-tech {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
 }
 
-.timeline-tech .tech-badge {
-  font-family: 'Fira Code', monospace;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 4px;
-  padding: 0.2rem 0.55rem;
-}
-
-/* Mobile */
-@media (max-width: 640px) {
-  .timeline-item { grid-template-columns: 28px 1fr; gap: 1rem; }
+@media (max-width: 768px) {
+  .timeline::before { left: 18px; }
+  .timeline-connector { width: 38px; }
+  .timeline-card { padding: 1.5rem; }
   .timeline-card-header { flex-direction: column; }
-  .timeline-period { align-self: flex-start; }
 }
