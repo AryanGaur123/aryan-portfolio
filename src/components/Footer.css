@@ -1,51 +1,24 @@
-/* Footer.css */
 .footer {
-  background: var(--bg-secondary);
-  border-top: var(--border-glass);
-  padding: 2rem 0;
+  padding: var(--space-8) 0;
+  border-top: 1px solid var(--gray-800);
 }
 
 .footer-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
 }
-
-.footer-logo {
-  font-family: 'Fira Code', monospace;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: var(--transition);
-}
-
-.footer-logo:hover { color: var(--color-blue); }
-
-.footer-logo-bracket { color: var(--color-blue); font-weight: 400; }
 
 .footer-copy {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.footer-back {
-  font-family: 'Fira Code', monospace;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: var(--transition);
+  font-size: var(--text-xs);
+  color: var(--gray-700);
   letter-spacing: 0.05em;
 }
 
-.footer-back:hover { color: var(--color-blue); }
-
-@media (max-width: 640px) {
-  .footer-inner {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.5rem;
-  }
+.footer-top {
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  color: var(--gray-700);
+  transition: color 0.3s var(--ease);
 }
+.footer-top:hover { color: var(--gray-400); }

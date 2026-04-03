@@ -3,74 +3,21 @@ import './Header.css';
 
 const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
-
-      const sections = ['hero', 'about', 'skills', 'projects', 'experience', 'contact'];
-      for (const id of sections.reverse()) {
-        const el = document.getElementById(id);
-        if (el && window.scrollY >= el.offsetTop - 120) {
-          setActiveSection(id);
-          break;
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  const navLinks = [
-    { href: '#about', label: 'About' },
-    { href: '#skills', label: 'Skills' },
-    { href: '#projects', label: 'Projects' },
-    { href: '#experience', label: 'Experience' },
-    { href: '#contact', label: 'Contact' },
-  ];
 
   return (
     <header className={`header ${scrolled ? 'scrolled' : ''}`}>
       <div className="header-inner container">
-        <a href="#hero" className="logo">
-          <span className="logo-bracket">&lt;</span>
-          AG
-          <span className="logo-bracket">/&gt;</span>
-        </a>
-
-        <nav className={`nav ${menuOpen ? 'open' : ''}`}>
-          {navLinks.map(({ href, label }) => (
-            <a
-              key={href}
-              href={href}
-              className={`nav-link ${activeSection === href.slice(1) ? 'active' : ''}`}
-              onClick={() => setMenuOpen(false)}
-            >
-              {label}
-            </a>
-          ))}
-          <a
-            href="https://github.com/AryanGaur123"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="nav-cta"
-          >
-            GitHub
-          </a>
+        <a href="#hero" className="logo">AG</a>
+        <nav className="nav">
+          <a href="#experience" className="nav-link">Experience</a>
+          <a href="#contact" className="nav-link">Contact</a>
         </nav>
-
-        <button
-          className={`menu-btn ${menuOpen ? 'open' : ''}`}
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          <span />
-          <span />
-          <span />
-        </button>
       </div>
     </header>
   );

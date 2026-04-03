@@ -1,13 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import Typed from 'typed.js';
 import './Hero.css';
 
 const Hero: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const typedRef = useRef<HTMLSpanElement>(null);
 
-  // ─── Three.js Neural Network ───────────────────────────────────────────────
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
@@ -18,102 +15,140 @@ const Hero: React.FC = () => {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(W, H);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 1000);
-    camera.position.z = 14;
+    const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+    camera.position.set(0, 0, 5);
 
-    // Nodes
-    const nodeCount = 80;
-    const nodeGeo = new THREE.SphereGeometry(0.12, 8, 8);
-    const nodes: THREE.Mesh[] = [];
-    const positions: THREE.Vector3[] = [];
-    const velocities: THREE.Vector3[] = [];
+    // ── Environment (silver/chrome IBL) ──────────────────────────────────────
+    // Build a procedural environment map — concentric gradient rings
+    const pmremGen = new THREE.PMREMGenerator(renderer);
+    pmremGen.compileEquirectangularShader();
 
-    const colors = [0x00d4ff, 0x7c3aed, 0x06b6d4, 0xf472b6];
-    for (let i = 0; i < nodeCount; i++) {
-      const mat = new THREE.MeshBasicMaterial({
-        color: colors[i % colors.length],
-        transparent: true,
-        opacity: 0.85,
-      });
-      const mesh = new THREE.Mesh(nodeGeo, mat);
-      const pos = new THREE.Vector3(
-        (Math.random() - 0.5) * 24,
-        (Math.random() - 0.5) * 14,
-        (Math.random() - 0.5) * 8,
-      );
-      mesh.position.copy(pos);
-      scene.add(mesh);
-      nodes.push(mesh);
-      positions.push(pos.clone());
-      velocities.push(new THREE.Vector3(
-        (Math.random() - 0.5) * 0.015,
-        (Math.random() - 0.5) * 0.015,
-        (Math.random() - 0.5) * 0.008,
-      ));
-    }
-
-    // Edges (line segments between close nodes)
-    const edgeGroup = new THREE.Group();
-    scene.add(edgeGroup);
-
-    const threshold = 7;
-
-    const rebuildEdges = () => {
-      edgeGroup.clear();
-      for (let i = 0; i < nodeCount; i++) {
-        for (let j = i + 1; j < nodeCount; j++) {
-          const dist = positions[i].distanceTo(positions[j]);
-          if (dist < threshold) {
-            const pts = [positions[i].clone(), positions[j].clone()];
-            const geo = new THREE.BufferGeometry().setFromPoints(pts);
-            const opacity = (1 - dist / threshold) * 0.15;
-            const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
-              color: 0x00d4ff,
-              transparent: true,
-              opacity,
-            }));
-            edgeGroup.add(line);
-          }
+    const envScene = new THREE.Scene();
+    // Gradient sky sphere
+    const skyGeo = new THREE.SphereGeometry(50, 32, 32);
+    const skyMat = new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      uniforms: { uTime: { value: 0 } },
+      vertexShader: `
+        varying vec3 vPos;
+        void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }
+      `,
+      fragmentShader: `
+        varying vec3 vPos;
+        uniform float uTime;
+        void main() {
+          float t = normalize(vPos).y * 0.5 + 0.5;
+          vec3 top    = vec3(0.18, 0.18, 0.20);
+          vec3 mid    = vec3(0.10, 0.10, 0.11);
+          vec3 bottom = vec3(0.05, 0.05, 0.055);
+          vec3 col = mix(bottom, mix(mid, top, t), t);
+          // subtle bright ring at horizon
+          float ring = pow(1.0 - abs(normalize(vPos).y), 8.0);
+          col += ring * 0.25;
+          gl_FragColor = vec4(col, 1.0);
         }
-      }
-    };
+      `,
+    });
+    envScene.add(new THREE.Mesh(skyGeo, skyMat));
 
-    rebuildEdges();
+    // Add a few point "lights" in env scene as emissive spheres
+    const envLightPositions = [
+      { pos: [10, 10, 10],   color: 0xffffff, intensity: 3.5 },
+      { pos: [-12, 5, -8],   color: 0xc0c0c0, intensity: 2.0 },
+      { pos: [0, -10, 5],    color: 0x888888, intensity: 1.0 },
+    ];
+    envLightPositions.forEach(({ pos, color, intensity }) => {
+      const sg = new THREE.SphereGeometry(0.8, 8, 8);
+      const sm = new THREE.MeshBasicMaterial({ color });
+      const sm2 = sm.clone();
+      sm2.color.multiplyScalar(intensity);
+      const mesh = new THREE.Mesh(sg, sm2);
+      mesh.position.set(...(pos as [number, number, number]));
+      envScene.add(mesh);
+    });
+
+    const envTexture = pmremGen.fromScene(envScene).texture;
+    scene.environment = envTexture;
+
+    // ── Chrome sphere ────────────────────────────────────────────────────────
+    const sphereGeo = new THREE.SphereGeometry(1.4, 128, 128);
+    const chromeMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      metalness: 1.0,
+      roughness: 0.04,
+      envMap: envTexture,
+      envMapIntensity: 2.5,
+    });
+    const sphere = new THREE.Mesh(sphereGeo, chromeMat);
+    scene.add(sphere);
+
+    // Thin ring around sphere
+    const ringGeo = new THREE.TorusGeometry(1.85, 0.006, 8, 200);
+    const ringMat = new THREE.MeshStandardMaterial({
+      color: 0xcccccc,
+      metalness: 1.0,
+      roughness: 0.05,
+      envMap: envTexture,
+    });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 2.5;
+    scene.add(ring);
+
+    // Second thinner ring at different angle
+    const ring2 = ring.clone();
+    ring2.rotation.x = Math.PI / 6;
+    ring2.rotation.y = Math.PI / 3;
+    scene.add(ring2);
+
+    // Scene lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3);
+    keyLight.position.set(5, 8, 5);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0xaaaaaa, 1.5);
+    rimLight.position.set(-6, -3, -4);
+    scene.add(rimLight);
+
+    const fillLight = new THREE.PointLight(0xffffff, 2.0, 20);
+    fillLight.position.set(-3, 3, 3);
+    scene.add(fillLight);
 
     // Mouse parallax
     const mouse = { x: 0, y: 0 };
+    const target = { x: 0, y: 0 };
     const onMouseMove = (e: MouseEvent) => {
-      mouse.x = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouse.y = -(e.clientY / window.innerHeight - 0.5) * 2;
+      mouse.x = (e.clientX / window.innerWidth  - 0.5) * 2;
+      mouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
     };
     window.addEventListener('mousemove', onMouseMove);
 
-    let frame = 0;
     let animId: number;
+    let t = 0;
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      frame++;
+      t += 0.004;
 
-      // Update positions
-      for (let i = 0; i < nodeCount; i++) {
-        positions[i].add(velocities[i]);
-        if (Math.abs(positions[i].x) > 12) velocities[i].x *= -1;
-        if (Math.abs(positions[i].y) > 7) velocities[i].y *= -1;
-        if (Math.abs(positions[i].z) > 4) velocities[i].z *= -1;
-        nodes[i].position.copy(positions[i]);
-      }
+      // Gentle auto-rotation
+      sphere.rotation.y = t * 0.3;
+      sphere.rotation.x = Math.sin(t * 0.4) * 0.12;
 
-      // Rebuild edges every 12 frames (perf)
-      if (frame % 12 === 0) rebuildEdges();
+      // Mouse parallax on group
+      target.x += (mouse.x * 0.18 - target.x) * 0.06;
+      target.y += (-mouse.y * 0.12 - target.y) * 0.06;
+      sphere.rotation.y += target.x * 0.6;
+      sphere.rotation.x += target.y * 0.4;
 
-      // Camera parallax
-      camera.position.x += (mouse.x * 1.5 - camera.position.x) * 0.04;
-      camera.position.y += (mouse.y * 0.8 - camera.position.y) * 0.04;
-      camera.lookAt(scene.position);
+      ring.rotation.z  = t * 0.15;
+      ring2.rotation.z = -t * 0.1;
 
       renderer.render(scene, camera);
     };
@@ -134,97 +169,34 @@ const Hero: React.FC = () => {
       window.removeEventListener('resize', onResize);
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
       renderer.dispose();
+      pmremGen.dispose();
     };
-  }, []);
-
-  // ─── Typed.js ─────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!typedRef.current) return;
-    const typed = new Typed(typedRef.current, {
-      strings: [
-        'intelligent AI systems.',
-        'multi-agent pipelines.',
-        'beautiful web apps.',
-        'scalable backends.',
-        'RAG architectures.',
-      ],
-      typeSpeed: 48,
-      backSpeed: 28,
-      backDelay: 1800,
-      loop: true,
-      cursorChar: '_',
-    });
-    return () => typed.destroy();
   }, []);
 
   return (
     <section className="hero" id="hero">
-      {/* Three.js canvas mount */}
-      <div ref={mountRef} className="hero-three" />
-
-      {/* Ambient blobs */}
-      <div className="blob blob-blue" />
-      <div className="blob blob-purple" />
-      <div className="blob blob-pink" />
-
-      <div className="hero-content container">
-        {/* Status pill */}
-        <div className="hero-tag">
-          <span className="hero-tag-dot" />
-          Available for full-time roles · 2027
-        </div>
-
-        <h1 className="hero-name">
-          Aryan<span className="gradient-text"> Gaur</span>
+      {/* Text — left column */}
+      <div className="hero-text container">
+        <p className="hero-eyebrow">Aryan Gaur</p>
+        <h1 className="hero-headline">
+          AI Engineer.<br />
+          <em>Software Dev.</em>
         </h1>
-
-        <div className="hero-role">
-          <span className="hero-role-prefix">I build </span>
-          <span ref={typedRef} className="typed-target" />
-        </div>
-
-        <p className="hero-bio">
-          AI Engineer & Software Developer crafting intelligent systems and immersive web experiences.
-          Pushing boundaries at the intersection of machine learning and modern software engineering.
+        <p className="hero-sub">
+          Interning on the GenAI team at SanDisk.<br />
+          Building things with LLMs, agents, and whatever's interesting.
         </p>
-
-        <div className="hero-actions">
-          <a href="#projects" className="btn-primary">
-            View My Work
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
-          <a href="#contact" className="btn-ghost">Get In Touch</a>
-        </div>
-
-        <div className="hero-stats">
-          <div className="stat">
-            <span className="stat-number gradient-text">3+</span>
-            <span className="stat-label">Years Coding</span>
-          </div>
-          <div className="stat-divider" />
-          <div className="stat">
-            <span className="stat-number gradient-text">10+</span>
-            <span className="stat-label">Projects Built</span>
-          </div>
-          <div className="stat-divider" />
-          <div className="stat">
-            <span className="stat-number gradient-text">AI</span>
-            <span className="stat-label">Focused</span>
-          </div>
-          <div className="stat-divider" />
-          <div className="stat">
-            <span className="stat-number gradient-text">SDE</span>
-            <span className="stat-label">@ SanDisk</span>
-          </div>
+        <div className="hero-cta-row">
+          <a href="#contact" className="hero-cta">Say hello</a>
+          <a href="#experience" className="hero-link">See what I do →</a>
         </div>
       </div>
 
-      <div className="hero-scroll-indicator">
-        <div className="scroll-line" />
-        <span>scroll</span>
-      </div>
+      {/* Three.js chrome sphere — right side */}
+      <div ref={mountRef} className="hero-canvas-wrap" />
+
+      {/* Ambient gradient */}
+      <div className="hero-glow" />
     </section>
   );
 };
