@@ -9,20 +9,22 @@ import Projects from './components/Projects';
 import Experience from './components/Experience';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import Cursor from './components/Cursor';
 import './App.css';
 
 const App: React.FC = () => {
   useEffect(() => {
     AOS.init({
-      duration: 800,
+      duration: 900,
       once: true,
-      offset: 60,
+      offset: 80,
       easing: 'ease-out-cubic',
     });
   }, []);
 
   return (
     <div className="App">
+      <Cursor />
       <Header />
       <main>
         <Hero />
