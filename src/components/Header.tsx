@@ -5,18 +5,18 @@ const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', fn, { passive: true });
+    return () => window.removeEventListener('scroll', fn);
   }, []);
 
   return (
-    <header className={`header ${scrolled ? 'scrolled' : ''}`}>
-      <div className="header-inner container">
-        <a href="#hero" className="logo">AG</a>
-        <nav className="nav">
-          <a href="#experience" className="nav-link">Experience</a>
-          <a href="#contact" className="nav-link">Contact</a>
+    <header className={`hdr ${scrolled ? 'hdr--scrolled' : ''}`}>
+      <div className="hdr__inner container">
+        <a href="#hero" className="hdr__logo" data-hover>AG</a>
+        <nav className="hdr__nav">
+          <a href="#experience" className="hdr__link" data-hover>Experience</a>
+          <a href="#contact" className="hdr__link" data-hover>Contact</a>
         </nav>
       </div>
     </header>
