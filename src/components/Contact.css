@@ -58,20 +58,22 @@
 
 .contact__statement-line--silver {
   background: linear-gradient(
-    128deg,
-    #e8e8e8 0%,
-    #ffffff 20%,
-    #b0b0b0 38%,
-    #f0f0f0 55%,
-    #888888 72%,
-    #d8d8d8 88%,
-    #ffffff 100%
+    118deg,
+    #c8c8d4 0%,
+    #ffffff 14%,
+    #a8a8b8 28%,
+    #f4f4f8 42%,
+    #787888 56%,
+    #e0e0ec 70%,
+    #ffffff 82%,
+    #b0b0c0 92%,
+    #f0f0f8 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  background-size: 300% 300%;
-  animation: shimmer 5s ease-in-out infinite;
+  background-size: 400% 400%;
+  animation: shimmer 4s ease-in-out infinite;
 }
 
 .contact__statement-line--small {
@@ -82,8 +84,9 @@
 }
 
 @keyframes shimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50%       { background-position: 100% 50%; }
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
 }
 
 /* ── Email ───────────────────────────────────────────────────────────────── */
