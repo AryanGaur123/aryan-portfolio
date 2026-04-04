@@ -32,15 +32,15 @@ const roles: Role[] = [
   },
   {
     index: '02',
-    title: 'B.S. Computer Science',
+    title: 'B.S. Computer Engineering',
     company: 'San Jose State University',
     period: '2023 — 2027',
     type: 'Full-time student',
     bullets: [
-      'Studying CS with a focus on AI/ML, systems programming, and algorithms.',
-      'Coursework spanning Verilog, C++, Assembly, digital design, and data structures.',
+      'Studying Computer Engineering — digital systems, FPGA design, EE fundamentals, and software.',
+      'Coursework in Verilog, circuit analysis, embedded systems, C++, and data structures.',
     ],
-    stack: ['Python', 'C++', 'Java', 'Verilog', 'Assembly', 'Algorithms'],
+    stack: ['Verilog', 'FPGA', 'C++', 'Assembly', 'Circuit Design', 'Embedded Systems'],
   },
 ];
 
