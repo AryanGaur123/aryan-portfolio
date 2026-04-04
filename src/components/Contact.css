@@ -58,17 +58,20 @@
 
 .contact__statement-line--silver {
   background: linear-gradient(
-    110deg,
-    var(--silver-200) 0%,
-    var(--silver-500) 40%,
-    var(--silver-200) 75%,
-    var(--silver-400) 100%
+    128deg,
+    #e8e8e8 0%,
+    #ffffff 20%,
+    #b0b0b0 38%,
+    #f0f0f0 55%,
+    #888888 72%,
+    #d8d8d8 88%,
+    #ffffff 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  background-size: 200% 200%;
-  animation: shimmer 7s ease-in-out infinite;
+  background-size: 300% 300%;
+  animation: shimmer 5s ease-in-out infinite;
 }
 
 .contact__statement-line--small {
