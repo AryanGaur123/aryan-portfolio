@@ -39,10 +39,9 @@
   z-index: 1;
   pointer-events: none;
   background:
-    /* silver shimmer behind the geometry cluster */
-    radial-gradient(ellipse 60% 70% at 75% 50%, rgba(180,180,200,0.06) 0%, transparent 70%),
-    /* text-side dark backdrop — much softer so copy stays readable */
-    radial-gradient(ellipse 48% 80% at 8% 50%, rgba(10,10,10,0.82) 0%, rgba(10,10,10,0.45) 55%, transparent 100%);
+    /* silver shimmer halo behind geometry */
+    radial-gradient(ellipse 55% 65% at 75% 50%, rgba(180,180,210,0.05) 0%, transparent 70%);
+  /* No left-side dark mask — readability handled by text shadow + color tokens */
 }
 
 /* ── Content ─────────────────────────────────────────────────────────────── */
@@ -56,8 +55,6 @@
 
 .hero__text {
   max-width: 640px;
-  /* Subtle dark backing — ensures text stays readable over 3D canvas */
-  background: radial-gradient(ellipse 110% 120% at 20% 50%, rgba(10,10,10,0.55) 0%, transparent 75%);
 }
 
 /* ── Headline clip-reveal ────────────────────────────────────────────────── */
@@ -82,8 +79,11 @@
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.04em;
-  color: var(--text-primary);
+  color: #ffffff;
   position: relative;
+  text-shadow:
+    0 0 40px rgba(0,0,0,0.9),
+    0 2px 12px rgba(0,0,0,0.7);
 }
 /* Silver accent underline — grows in on page load */
 .hero__name::after {
@@ -149,8 +149,9 @@
   align-items: center;
   gap: var(--s-xs);
   font-size: var(--step--1);
-  color: var(--text-secondary);
+  color: #c8c8c8;
   letter-spacing: 0.04em;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
 }
 
 .hero__dot {
@@ -169,11 +170,11 @@
 /* ── Bio ─────────────────────────────────────────────────────────────────── */
 .hero__bio {
   font-size: var(--step-0);
-  color: var(--text-secondary);
+  color: #c0c0c0;
   line-height: 1.85;
   max-width: 460px;
   margin-bottom: var(--s-l);
-  /* opacity removed — token is bright enough */
+  text-shadow: 0 1px 8px rgba(0,0,0,0.8), 0 0 24px rgba(0,0,0,0.5);
 }
 
 /* ── CTA ─────────────────────────────────────────────────────────────────── */
@@ -208,17 +209,21 @@
 }
 .hero__btn--primary:hover {
   background: var(--silver-200);
-  box-shadow: 0 10px 30px rgba(200,200,200,0.12);
+  box-shadow: 0 10px 40px rgba(200,200,220,0.22), 0 0 0 1px rgba(220,220,240,0.15);
 }
 
 .hero__btn--ghost {
-  color: var(--text-secondary);
+  color: #d0d0d0;
   padding: 0.75rem 1.4rem;
-  border: 1px solid var(--surface-4);
+  border: 1px solid rgba(200,200,220,0.25);
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .hero__btn--ghost:hover {
-  color: var(--text-primary);
-  border-color: var(--silver-400);
+  color: #ffffff;
+  border-color: rgba(200,200,220,0.5);
+  background: rgba(255,255,255,0.08);
 }
 
 .hero__btn svg {

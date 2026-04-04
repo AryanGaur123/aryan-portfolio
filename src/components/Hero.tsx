@@ -33,7 +33,7 @@ const Hero: React.FC = () => {
 
     const scene  = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 100);
-    camera.position.z = 8;
+    camera.position.set(-1.8, 0, 8); // shifted left so geometry fills right half
 
     /* ── Procedural silver-studio env map ───────────────────────────────── */
     const pmrem    = new THREE.PMREMGenerator(renderer);
