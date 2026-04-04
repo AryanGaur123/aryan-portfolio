@@ -15,10 +15,10 @@
   --surface-4: #2e2e2e;
 
   /* Text */
-  --text-primary:   #f0f0f0;
-  --text-secondary: #8a8a8a;
-  --text-muted:     #4a4a4a;
-  --text-faint:     #2a2a2a;
+  --text-primary:   #f2f2f2;
+  --text-secondary: #b8b8b8;
+  --text-muted:     #787878;
+  --text-faint:     #3a3a3a;
 
   /* Silver accent */
   --silver-100: #e8e8e8;
