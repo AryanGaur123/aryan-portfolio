@@ -381,9 +381,8 @@ const Hero: React.FC = () => {
           </div>
 
           <p className="hero__bio">
-            I build AI-powered systems — multi-agent pipelines, RAG architectures, and full-stack tooling
-            that puts LLMs to practical use. Currently on the GenAI team at SanDisk, and studying
-            Computer Science at SJSU.
+            Computer Engineering student at SJSU — Verilog, FPGAs, digital design, and enough software
+            to bridge both worlds. Currently interning on the GenAI team at SanDisk.
           </p>
 
           <div ref={ctaRef} className="hero__cta">
