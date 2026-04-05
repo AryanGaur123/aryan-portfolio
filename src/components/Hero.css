@@ -52,16 +52,17 @@
   height: 100% !important;
 }
 
-/* ── Radial glow ─────────────────────────────────────────────────────────── */
+/* ── Radial glow + vignette ──────────────────────────────────────────────── */
 .hero__glow {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
   background:
+    /* edge vignette — darkens corners, keeps eye on the cluster */
+    radial-gradient(ellipse 85% 85% at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%),
     /* silver shimmer halo behind geometry */
-    radial-gradient(ellipse 55% 65% at 75% 50%, rgba(180,180,210,0.05) 0%, transparent 70%);
-  /* No left-side dark mask — readability handled by text shadow + color tokens */
+    radial-gradient(ellipse 50% 60% at 75% 50%, rgba(180,180,210,0.04) 0%, transparent 70%);
 }
 
 /* ── Content ─────────────────────────────────────────────────────────────── */

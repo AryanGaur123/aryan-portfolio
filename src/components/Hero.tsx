@@ -27,7 +27,7 @@ const Hero: React.FC = () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(W, H);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.6;
+    renderer.toneMappingExposure = 1.25;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     mount.appendChild(renderer.domElement);
 
@@ -98,7 +98,7 @@ const Hero: React.FC = () => {
         metalness:          1.0,
         roughness,
         envMap:             envTex,
-        envMapIntensity:    4.5,
+        envMapIntensity:    2.8,
         clearcoat:          0.6,
         clearcoatRoughness: 0.08,
       });
@@ -110,7 +110,7 @@ const Hero: React.FC = () => {
         metalness:       1.0,
         roughness,
         envMap:          envTex,
-        envMapIntensity: 3.5,
+        envMapIntensity: 2.2,
         clearcoat:       0.3,
         clearcoatRoughness: 0.2,
       });
@@ -118,23 +118,23 @@ const Hero: React.FC = () => {
     /* ── Scene lights (on top of env) ──────────────────────────────────── */
     scene.add(new THREE.AmbientLight(0xffffff, 0.08));
 
-    const key = new THREE.DirectionalLight(0xffffff, 8);
+    const key = new THREE.DirectionalLight(0xffffff, 4);
     key.position.set(7, 12, 6);
     scene.add(key);
 
-    const rim1 = new THREE.DirectionalLight(0xe0e8ff, 3.5);
+    const rim1 = new THREE.DirectionalLight(0xe0e8ff, 1.8);
     rim1.position.set(-10, -4, -8);
     scene.add(rim1);
 
-    const rim2 = new THREE.DirectionalLight(0xfff0e8, 2.0);
+    const rim2 = new THREE.DirectionalLight(0xfff0e8, 1.0);
     rim2.position.set(4, -8, 8);
     scene.add(rim2);
 
-    const fill = new THREE.PointLight(0xffffff, 5, 30);
+    const fill = new THREE.PointLight(0xffffff, 2.5, 30);
     fill.position.set(-3, 6, 6);
     scene.add(fill);
 
-    const sparkle = new THREE.PointLight(0xe8f0ff, 4, 18);
+    const sparkle = new THREE.PointLight(0xe8f0ff, 2.0, 18);
     sparkle.position.set(3, -2, 4);
     scene.add(sparkle);
 
@@ -255,6 +255,27 @@ const Hero: React.FC = () => {
     addRing(0.21, 0.008, [-1.7,  0.5,  0.3],  Math.PI / 4,  -0.5,  1.6);
     addRing(0.18, 0.007, [-1.3, -1.0, -0.3],  Math.PI / 5,   0.3,  2.2);
 
+
+    /* ── Wireframe ghost icosahedron — orbits slowly behind cluster ───── */
+    const ghostGeo = new THREE.IcosahedronGeometry(1.6, 1);
+    const ghostMat = new THREE.MeshBasicMaterial({
+      color: 0x707080,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.10,
+    });
+    const ghost = new THREE.Mesh(ghostGeo, ghostMat);
+    ghost.position.set(0.4, 0.2, -0.5);
+    scene.add(ghost);
+
+    /* Smaller wireframe octahedron accent */
+    const ghost2 = new THREE.Mesh(
+      new THREE.OctahedronGeometry(1.0, 0),
+      new THREE.MeshBasicMaterial({ color: 0x808090, wireframe: true, transparent: true, opacity: 0.07 }),
+    );
+    ghost2.position.set(1.2, -0.4, -1.0);
+    scene.add(ghost2);
+
     /* Entrance — scale from 0, staggered */
     pieces.forEach(({ mesh }, i) => {
       mesh.scale.setScalar(0);
@@ -301,9 +322,9 @@ const Hero: React.FC = () => {
       t += 0.01;
 
       pieces.forEach(p => {
-        p.mesh.rotation.x += 0.0018 * p.speedX;
-        p.mesh.rotation.y += 0.0025 * p.speedY;
-        p.mesh.rotation.z += 0.0012 * p.speedZ;
+        p.mesh.rotation.x += 0.0012 * p.speedX;
+        p.mesh.rotation.y += 0.0017 * p.speedY;
+        p.mesh.rotation.z += 0.0008 * p.speedZ;
         p.mesh.position.y  = p.oy + Math.sin(t * p.floatSpeed + p.phase) * p.floatAmp;
         p.mesh.position.x  = p.ox + Math.cos(t * p.floatSpeed * 0.7 + p.phase) * (p.floatAmp * 0.45);
       });
@@ -312,8 +333,14 @@ const Hero: React.FC = () => {
       dustCloud.rotation.y += 0.00025;
       dustCloud.rotation.x += 0.00012;
 
+      // Wireframe ghost — slow independent orbit
+      ghost.rotation.y  += 0.0008;
+      ghost.rotation.x  += 0.0003;
+      ghost2.rotation.y -= 0.0006;
+      ghost2.rotation.z += 0.0004;
+
       // Pulsing haze light — breathes in and out
-      pulse.intensity = 2.5 + Math.sin(t * 0.8) * 2.0;
+      pulse.intensity = 1.0 + Math.sin(t * 0.8) * 0.8;
 
       // Slow idle camera drift — subtle, alive
       camera.position.x = -1.8 + Math.sin(t * 0.18) * 0.12;
