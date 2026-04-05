@@ -9,6 +9,32 @@
   border-bottom: 1px solid transparent;
 }
 
+/* ── Scroll progress bar ───────────────────────────────────────────── */
+.hdr__progress-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: transparent;
+  z-index: 101;
+  overflow: hidden;
+}
+.hdr__progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(160,160,190,0.6) 20%,
+    rgba(220,220,240,0.95) 55%,
+    rgba(255,255,255,0.8) 80%,
+    transparent 100%
+  );
+  transition: width 0.1s linear;
+  box-shadow: 0 0 8px rgba(200,200,220,0.4);
+}
+
 .hdr--scrolled {
   padding: var(--s-s) 0;
   background: rgba(10, 10, 10, 0.88);
@@ -24,14 +50,41 @@
 }
 
 .hdr__logo {
-  font-family: var(--font-display);
-  font-size: var(--step--1);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--text-primary);
-  transition: color var(--duration-fast) var(--ease-out-expo);
+  display: flex;
+  align-items: center;
+  transition: opacity var(--duration-fast) var(--ease-out-expo);
 }
-.hdr__logo:hover { color: var(--silver-300); }
+.hdr__logo:hover { opacity: 0.75; }
+
+/* ── SVG Monogram ──────────────────────────────────────────────────────── */
+.hdr__monogram {
+  display: block;
+  overflow: visible;
+}
+
+/* Outer ring draws in from 0 on load */
+.hdr__ring {
+  stroke-dasharray: 101; /* circumference ~= 2π×16 ≈ 100.5 */
+  stroke-dashoffset: 101;
+  animation: ringDraw 1.6s var(--ease-out-expo) 0.2s forwards;
+}
+@keyframes ringDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Letters fade + draw in after ring */
+.hdr__letter {
+  opacity: 0;
+  animation: letterFade 0.7s ease-out forwards;
+}
+.hdr__letter--a     { animation-delay: 0.9s; }
+.hdr__letter--a-bar { animation-delay: 1.05s; }
+.hdr__letter--g     { animation-delay: 1.15s; }
+
+@keyframes letterFade {
+  from { opacity: 0; transform: scale(0.94); transform-origin: center; }
+  to   { opacity: 1; transform: scale(1); }
+}
 
 .hdr__nav {
   display: flex;
