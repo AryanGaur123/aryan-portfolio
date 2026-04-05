@@ -1,377 +1,276 @@
 import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
 import { gsap } from 'gsap';
 import './Hero.css';
 
-const Hero: React.FC = () => {
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const line1Ref  = useRef<HTMLDivElement>(null);
-  const line2Ref  = useRef<HTMLDivElement>(null);
-  const metaRef   = useRef<HTMLDivElement>(null);
-  const ctaRef    = useRef<HTMLDivElement>(null);
+/* ── Canvas 2D particle + geometric field ────────────────────────────────── */
+function initCanvas(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return () => {};
 
-  /* ── Three.js — silver metallic geometry, no EffectComposer ────────────── */
-  useEffect(() => {
-    const mount = canvasRef.current;
-    if (!mount) return;
+  let W = canvas.offsetWidth;
+  let H = canvas.offsetHeight;
+  let mouseX = W * 0.75;
+  let mouseY = H * 0.5;
+  let animId: number;
 
-    const W = mount.clientWidth  || window.innerWidth;
-    const H = mount.clientHeight || window.innerHeight;
+  const resize = () => {
+    W = canvas.offsetWidth;
+    H = canvas.offsetHeight;
+    canvas.width  = W * window.devicePixelRatio;
+    canvas.height = H * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  };
+  resize();
+  window.addEventListener('resize', resize);
 
-    /* ── Renderer — plain WebGLRenderer, no composer ─────────────────────── */
-    const renderer = new THREE.WebGLRenderer({
-      antialias:    true,
-      alpha:        true,
-      powerPreference: 'high-performance',
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(W, H);
-    renderer.toneMapping        = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3;
-    renderer.outputColorSpace   = THREE.SRGBColorSpace;
-    mount.appendChild(renderer.domElement);
-
-    const scene  = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 100);
-    camera.position.set(-1.8, 0, 8);
-
-    /* ── Procedural PMREM env map ─────────────────────────────────────────── */
-    const pmrem    = new THREE.PMREMGenerator(renderer);
-    pmrem.compileEquirectangularShader();
-
-    const envScene = new THREE.Scene();
-    envScene.add(new THREE.Mesh(
-      new THREE.SphereGeometry(50, 32, 32),
-      new THREE.ShaderMaterial({
-        side: THREE.BackSide,
-        vertexShader: `
-          varying vec3 vPos;
-          void main(){ vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }
-        `,
-        fragmentShader: `
-          varying vec3 vPos;
-          void main(){
-            float y  = normalize(vPos).y * .5 + .5;
-            vec3 top = vec3(.82,.82,.84);
-            vec3 mid = vec3(.45,.45,.47);
-            vec3 bot = vec3(.04,.04,.045);
-            vec3 c   = mix(bot, mix(mid, top, y * 1.3), y);
-            float rim = pow(1. - abs(normalize(vPos).y), 6.);
-            c += rim * vec3(.95,.93,.90);
-            gl_FragColor = vec4(c, 1.);
-          }
-        `,
-      })
-    ));
-
-    const envLights: { p: [number,number,number]; s: number; c: number }[] = [
-      { p: [ 12,  18,   8], s: 10.0, c: 0xffffff },
-      { p: [-14,   5,  -6], s:  4.0, c: 0xe8e8e8 },
-      { p: [  0, -10,   8], s:  2.5, c: 0xd0d0d0 },
-      { p: [  8,   2, -14], s:  3.0, c: 0xcccccc },
-      { p: [ -5,  -5,  10], s:  2.0, c: 0xb8b8b8 },
-      { p: [  0,  20,   0], s:  5.0, c: 0xffffff },
-    ];
-    envLights.forEach(({ p, s, c }) => {
-      const mat = new THREE.MeshBasicMaterial({ color: c });
-      mat.color.multiplyScalar(s);
-      const m = new THREE.Mesh(new THREE.SphereGeometry(0.4, 8, 8), mat);
-      m.position.set(...p);
-      envScene.add(m);
-    });
-
-    const envTex = pmrem.fromScene(envScene).texture;
-    scene.environment = envTex;
-
-    /* ── Materials ────────────────────────────────────────────────────────── */
-    const silverMat = (roughness = 0.07, tint = 0xc8c8d0) =>
-      new THREE.MeshPhysicalMaterial({
-        color:              new THREE.Color(tint),
-        metalness:          1.0,
-        roughness,
-        envMap:             envTex,
-        envMapIntensity:    2.8,
-        clearcoat:          0.6,
-        clearcoatRoughness: 0.08,
-      });
-
-    const darkSilver = (roughness = 0.15) =>
-      new THREE.MeshPhysicalMaterial({
-        color:              new THREE.Color(0x909098),
-        metalness:          1.0,
-        roughness,
-        envMap:             envTex,
-        envMapIntensity:    2.2,
-        clearcoat:          0.3,
-        clearcoatRoughness: 0.2,
-      });
-
-    /* ── Lights ───────────────────────────────────────────────────────────── */
-    scene.add(new THREE.AmbientLight(0xffffff, 0.1));
-
-    const key = new THREE.DirectionalLight(0xffffff, 4);
-    key.position.set(7, 12, 6);
-    scene.add(key);
-
-    const rim1 = new THREE.DirectionalLight(0xe0e8ff, 1.8);
-    rim1.position.set(-10, -4, -8);
-    scene.add(rim1);
-
-    const rim2 = new THREE.DirectionalLight(0xfff0e8, 1.0);
-    rim2.position.set(4, -8, 8);
-    scene.add(rim2);
-
-    const fill = new THREE.PointLight(0xffffff, 2.5, 30);
-    fill.position.set(-3, 6, 6);
-    scene.add(fill);
-
-    const sparkle = new THREE.PointLight(0xe8f0ff, 2.0, 18);
-    sparkle.position.set(3, -2, 4);
-    scene.add(sparkle);
-
-    const pulse = new THREE.PointLight(0xd0d8ff, 0, 12);
-    pulse.position.set(0.4, 0.2, 2);
-    scene.add(pulse);
-
-    /* ── Particle dust ────────────────────────────────────────────────────── */
-    const dustCount = 280;
-    const dustPos   = new Float32Array(dustCount * 3);
-    for (let i = 0; i < dustCount; i++) {
-      dustPos[i * 3]     = (Math.random() - 0.5) * 9;
-      dustPos[i * 3 + 1] = (Math.random() - 0.5) * 7;
-      dustPos[i * 3 + 2] = (Math.random() - 0.5) * 4;
+  const onMove = (e: MouseEvent | TouchEvent) => {
+    if ('touches' in e) {
+      mouseX = e.touches[0].clientX;
+      mouseY = e.touches[0].clientY;
+    } else {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
     }
-    const dustGeo = new THREE.BufferGeometry();
-    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
-    const dustCloud = new THREE.Points(dustGeo, new THREE.PointsMaterial({
-      color: 0xd0d0d8, size: 0.018, sizeAttenuation: true,
-      transparent: true, opacity: 0.5,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-    }));
-    scene.add(dustCloud);
+  };
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove as EventListener, { passive: true });
 
-    /* ── Geometry cluster ─────────────────────────────────────────────────── */
-    type Piece = {
-      mesh: THREE.Mesh;
-      ox: number; oy: number;
-      phase: number;
-      speedX: number; speedY: number; speedZ: number;
-      floatAmp: number; floatSpeed: number;
-    };
-    const pieces: Piece[] = [];
+  /* ── Floating particles ─────────────────────────────────────────────── */
+  const PARTICLE_COUNT = 90;
+  type Particle = {
+    x: number; y: number;
+    vx: number; vy: number;
+    r: number; alpha: number; speed: number;
+  };
+  const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, () => ({
+    x:     Math.random() * W,
+    y:     Math.random() * H,
+    vx:    (Math.random() - 0.5) * 0.25,
+    vy:    (Math.random() - 0.5) * 0.25,
+    r:     0.5 + Math.random() * 1.8,
+    alpha: 0.15 + Math.random() * 0.5,
+    speed: 0.3 + Math.random() * 0.7,
+  }));
 
-    const addPiece = (
-      geo: THREE.BufferGeometry, mat: THREE.Material,
-      pos: [number, number, number], phase: number,
-    ) => {
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(...pos);
-      mesh.rotation.set(
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2,
-      );
-      scene.add(mesh);
-      pieces.push({
-        mesh, ox: pos[0], oy: pos[1], phase,
-        speedX:    (Math.random() - 0.5) * 0.5,
-        speedY:    (Math.random() - 0.5) * 0.7,
-        speedZ:    (Math.random() - 0.5) * 0.35,
-        floatAmp:  0.07 + Math.random() * 0.13,
-        floatSpeed: 0.55 + Math.random() * 0.9,
-      });
-    };
+  /* ── Geometric shapes ───────────────────────────────────────────────── */
+  type Shape = {
+    x: number; y: number;
+    size: number;
+    sides: number;
+    rot: number; rotSpeed: number;
+    floatPhase: number; floatAmp: number; floatSpeed: number;
+    alpha: number;
+    strokeW: number;
+  };
 
-    addPiece(new THREE.IcosahedronGeometry(0.52, 1),  silverMat(0.04),  [ 0.4,  0.2,  0.0], 0.0);
-    addPiece(new THREE.OctahedronGeometry(0.30, 0),   silverMat(0.06),  [ 1.9,  0.9, -0.5], 0.7);
-    addPiece(new THREE.IcosahedronGeometry(0.24, 0),  darkSilver(0.10), [-1.7,  0.5,  0.3], 1.4);
-    addPiece(new THREE.TetrahedronGeometry(0.27, 0),  silverMat(0.03),  [ 1.3, -1.1,  0.4], 2.1);
-    addPiece(new THREE.DodecahedronGeometry(0.22, 0), darkSilver(0.12), [-1.3, -1.0, -0.3], 2.8);
-    addPiece(new THREE.OctahedronGeometry(0.19, 0),   silverMat(0.05),  [ 0.0,  1.7,  0.2], 3.5);
-    addPiece(new THREE.IcosahedronGeometry(0.13, 0),  silverMat(0.04),  [ 2.7, -0.3,  0.2], 0.4);
-    addPiece(new THREE.OctahedronGeometry(0.11, 0),   darkSilver(0.08), [-2.5,  1.3, -0.4], 1.1);
-    addPiece(new THREE.TetrahedronGeometry(0.12, 0),  silverMat(0.06),  [ 0.3,  2.0,  0.1], 1.8);
-    addPiece(new THREE.IcosahedronGeometry(0.09, 0),  silverMat(0.03),  [-0.6, -1.9,  0.3], 2.5);
-    addPiece(new THREE.DodecahedronGeometry(0.10, 0), darkSilver(0.15), [ 2.1,  1.6, -0.6], 3.2);
-    addPiece(new THREE.TetrahedronGeometry(0.08, 0),  silverMat(0.04),  [-0.9,  1.2,  0.5], 0.9);
+  const shapes: Shape[] = [
+    { x: W*0.72, y: H*0.42, size: 80, sides: 6, rot: 0, rotSpeed: 0.003, floatPhase: 0,    floatAmp: 12, floatSpeed: 0.6, alpha: 0.18, strokeW: 1   },
+    { x: W*0.82, y: H*0.60, size: 44, sides: 3, rot: 0, rotSpeed: 0.005, floatPhase: 1.2,  floatAmp: 8,  floatSpeed: 0.8, alpha: 0.22, strokeW: 0.8 },
+    { x: W*0.60, y: H*0.30, size: 32, sides: 8, rot: 0, rotSpeed: 0.004, floatPhase: 2.4,  floatAmp: 10, floatSpeed: 0.5, alpha: 0.16, strokeW: 0.7 },
+    { x: W*0.88, y: H*0.28, size: 24, sides: 4, rot: Math.PI/4, rotSpeed: 0.007, floatPhase: 0.6, floatAmp: 6, floatSpeed: 1.0, alpha: 0.20, strokeW: 0.6 },
+    { x: W*0.65, y: H*0.70, size: 56, sides: 5, rot: 0, rotSpeed: 0.002, floatPhase: 1.8,  floatAmp: 14, floatSpeed: 0.4, alpha: 0.14, strokeW: 0.9 },
+    { x: W*0.78, y: H*0.80, size: 28, sides: 3, rot: Math.PI, rotSpeed: -0.006, floatPhase: 3.0, floatAmp: 7, floatSpeed: 0.9, alpha: 0.18, strokeW: 0.6 },
+    { x: W*0.55, y: H*0.55, size: 18, sides: 6, rot: 0, rotSpeed: 0.008, floatPhase: 2.1,  floatAmp: 5,  floatSpeed: 1.1, alpha: 0.12, strokeW: 0.5 },
+    { x: W*0.92, y: H*0.50, size: 38, sides: 8, rot: 0, rotSpeed: -0.003, floatPhase: 0.9, floatAmp: 9,  floatSpeed: 0.7, alpha: 0.15, strokeW: 0.7 },
+  ];
 
-    // Torus rings
-    const addRing = (
-      r: number, tube: number,
-      pos: [number, number, number],
-      rotX: number, rotZ: number, phase: number,
-    ) => {
-      const mesh = new THREE.Mesh(
-        new THREE.TorusGeometry(r, tube, 8, 120),
-        silverMat(0.05, 0xe0e0e8),
-      );
-      mesh.position.set(...pos);
-      mesh.rotation.x = rotX;
-      mesh.rotation.z = rotZ;
-      scene.add(mesh);
-      pieces.push({
-        mesh, ox: pos[0], oy: pos[1], phase,
-        speedX: 0.12, speedY: 0.18, speedZ: 0.08,
-        floatAmp: 0.05, floatSpeed: 0.45,
-      });
-    };
-    addRing(0.44, 0.011, [ 0.4,  0.2,  0.0], Math.PI / 2.2, 0.4,  0.0);
-    addRing(0.56, 0.009, [ 0.4,  0.2,  0.0], Math.PI / 6,   1.1,  0.5);
-    addRing(0.27, 0.009, [ 1.9,  0.9, -0.5], Math.PI / 3,   0.8,  0.9);
-    addRing(0.21, 0.008, [-1.7,  0.5,  0.3], Math.PI / 4,  -0.5,  1.6);
-    addRing(0.18, 0.007, [-1.3, -1.0, -0.3], Math.PI / 5,   0.3,  2.2);
+  /* ── Orbiting rings ─────────────────────────────────────────────────── */
+  type Ring = { cx: number; cy: number; rx: number; ry: number; rot: number; rotSpeed: number; alpha: number; };
+  const rings: Ring[] = [
+    { cx: W*0.72, cy: H*0.42, rx: 120, ry: 48,  rot: 0.4,  rotSpeed: 0.004,  alpha: 0.10 },
+    { cx: W*0.72, cy: H*0.42, rx: 160, ry: 32,  rot: -0.6, rotSpeed: -0.003, alpha: 0.07 },
+    { cx: W*0.82, cy: H*0.60, rx: 70,  ry: 28,  rot: 1.0,  rotSpeed: 0.006,  alpha: 0.12 },
+  ];
 
-    // Wireframe ghosts
-    const ghost = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(1.6, 1),
-      new THREE.MeshBasicMaterial({ color: 0x707080, wireframe: true, transparent: true, opacity: 0.08 }),
-    );
-    ghost.position.set(0.4, 0.2, -0.5);
-    scene.add(ghost);
+  /* ── Connection lines between nearby particles ──────────────────────── */
+  const MAX_DIST = 90;
 
-    const ghost2 = new THREE.Mesh(
-      new THREE.OctahedronGeometry(1.0, 0),
-      new THREE.MeshBasicMaterial({ color: 0x808090, wireframe: true, transparent: true, opacity: 0.06 }),
-    );
-    ghost2.position.set(1.2, -0.4, -1.0);
-    scene.add(ghost2);
+  let t = 0;
 
-    /* Entrance animation */
-    pieces.forEach(({ mesh }, i) => {
-      mesh.scale.setScalar(0);
-      gsap.to(mesh.scale, {
-        x: 1, y: 1, z: 1,
-        duration: 2.0,
-        delay: 0.3 + i * 0.045,
-        ease: 'expo.out',
-      });
+  const drawPolygon = (
+    cx: number, cy: number, r: number,
+    sides: number, rot: number,
+    alpha: number, sw: number,
+  ) => {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(rot);
+    ctx.beginPath();
+    for (let i = 0; i < sides; i++) {
+      const a = (Math.PI * 2 * i) / sides - Math.PI / 2;
+      i === 0 ? ctx.moveTo(Math.cos(a)*r, Math.sin(a)*r)
+              : ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r);
+    }
+    ctx.closePath();
+    const g = ctx.createLinearGradient(-r, -r, r, r);
+    g.addColorStop(0,   `rgba(160,160,180,${alpha * 0.6})`);
+    g.addColorStop(0.5, `rgba(220,220,240,${alpha})`);
+    g.addColorStop(1,   `rgba(100,100,120,${alpha * 0.5})`);
+    ctx.strokeStyle = g;
+    ctx.lineWidth = sw;
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  const draw = () => {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.01;
+
+    /* Mouse-influenced radial glow */
+    const gx = mouseX;
+    const gy = mouseY;
+    const glow = ctx.createRadialGradient(gx, gy, 0, gx, gy, 300);
+    glow.addColorStop(0,   'rgba(160,160,200,0.04)');
+    glow.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    /* Rings */
+    rings.forEach(rn => {
+      rn.rot += rn.rotSpeed;
+      ctx.save();
+      ctx.translate(rn.cx, rn.cy);
+      ctx.rotate(rn.rot);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rn.rx, rn.ry, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(180,180,210,${rn.alpha})`;
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+      ctx.restore();
     });
 
-    /* ── Mouse parallax ───────────────────────────────────────────────────── */
-    const mouse  = { x: 0, y: 0 };
-    const target = { x: 0, y: 0 };
-    const onMove = (e: MouseEvent) => {
-      mouse.x =  (e.clientX / window.innerWidth  - 0.5) * 2;
-      mouse.y = -(e.clientY / window.innerHeight - 0.5) * 2;
-    };
-    window.addEventListener('mousemove', onMove);
+    /* Shapes */
+    shapes.forEach(sh => {
+      sh.rot += sh.rotSpeed;
+      const fy = sh.y + Math.sin(t * sh.floatSpeed + sh.floatPhase) * sh.floatAmp;
+      const fx = sh.x + Math.cos(t * sh.floatSpeed * 0.7 + sh.floatPhase) * (sh.floatAmp * 0.3);
+      /* Parallax toward mouse */
+      const dx = (mouseX - W * 0.5) * 0.012;
+      const dy = (mouseY - H * 0.5) * 0.008;
+      drawPolygon(fx + dx, fy + dy, sh.size, sh.sides, sh.rot, sh.alpha, sh.strokeW);
+    });
 
-    const group = new THREE.Group();
-    pieces.forEach(p => { scene.remove(p.mesh); group.add(p.mesh); });
-    scene.add(group);
+    /* Particle connections */
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx2 = particles[i].x - particles[j].x;
+        const dy2 = particles[i].y - particles[j].y;
+        const d   = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+        if (d < MAX_DIST) {
+          const a = (1 - d / MAX_DIST) * 0.06;
+          ctx.strokeStyle = `rgba(160,160,180,${a})`;
+          ctx.lineWidth   = 0.4;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
 
-    /* ── Animate — direct renderer.render(), no composer ─────────────────── */
-    let animId: number;
-    let t = 0;
-    const animate = () => {
-      animId = requestAnimationFrame(animate);
-      t += 0.01;
+    /* Particles */
+    particles.forEach(p => {
+      p.x += p.vx * p.speed;
+      p.y += p.vy * p.speed;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
 
-      pieces.forEach(p => {
-        p.mesh.rotation.x += 0.0012 * p.speedX;
-        p.mesh.rotation.y += 0.0017 * p.speedY;
-        p.mesh.rotation.z += 0.0008 * p.speedZ;
-        p.mesh.position.y  = p.oy + Math.sin(t * p.floatSpeed + p.phase) * p.floatAmp;
-        p.mesh.position.x  = p.ox + Math.cos(t * p.floatSpeed * 0.7 + p.phase) * (p.floatAmp * 0.45);
-      });
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,200,220,${p.alpha})`;
+      ctx.fill();
+    });
 
-      dustCloud.rotation.y += 0.00025;
-      dustCloud.rotation.x += 0.00012;
+    animId = requestAnimationFrame(draw);
+  };
+  draw();
 
-      ghost.rotation.y  += 0.0008;
-      ghost.rotation.x  += 0.0003;
-      ghost2.rotation.y -= 0.0006;
-      ghost2.rotation.z += 0.0004;
+  return () => {
+    cancelAnimationFrame(animId);
+    window.removeEventListener('resize', resize);
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('touchmove', onMove as EventListener);
+  };
+}
 
-      pulse.intensity = 1.0 + Math.sin(t * 0.8) * 0.8;
+/* ── Hero Component ─────────────────────────────────────────────────────── */
+const Hero: React.FC = () => {
+  const canvasRef   = useRef<HTMLCanvasElement>(null);
+  const tagRef      = useRef<HTMLDivElement>(null);
+  const line1Ref    = useRef<HTMLDivElement>(null);
+  const line2Ref    = useRef<HTMLDivElement>(null);
+  const metaRef     = useRef<HTMLDivElement>(null);
+  const bioRef      = useRef<HTMLParagraphElement>(null);
+  const ctaRef      = useRef<HTMLDivElement>(null);
+  const scrollRef   = useRef<HTMLDivElement>(null);
 
-      camera.position.x = -1.8 + Math.sin(t * 0.18) * 0.12;
-      camera.position.y =        Math.cos(t * 0.13) * 0.08;
-
-      target.x += (mouse.x * 0.15 - target.x) * 0.04;
-      target.y += (mouse.y * 0.10 - target.y) * 0.04;
-      group.rotation.y = target.x * 0.5;
-      group.rotation.x = target.y * 0.3;
-
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    /* ── Resize ───────────────────────────────────────────────────────────── */
-    const onResize = () => {
-      const w = mount.clientWidth;
-      const h = mount.clientHeight;
-      renderer.setSize(w, h);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    };
-    window.addEventListener('resize', onResize);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('resize', onResize);
-      if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
-      renderer.dispose();
-      pmrem.dispose();
-    };
+  /* Canvas 2D — works on every browser */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    return initCanvas(canvas);
   }, []);
 
-  /* ── GSAP text entrance ───────────────────────────────────────────────── */
+  /* GSAP entrance */
   useEffect(() => {
-    const tl = gsap.timeline({ defaults: { ease: 'expo.out', duration: 1.2 } });
-    tl.from(line1Ref.current,  { yPercent: 110, opacity: 0 }, 0.2)
-      .from(line2Ref.current,  { yPercent: 110, opacity: 0 }, 0.35)
-      .from(metaRef.current,   { y: 20, opacity: 0, duration: 0.9 }, 0.7)
-      .from(ctaRef.current,    { y: 20, opacity: 0, duration: 0.9 }, 0.85);
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.from(tagRef.current,   { y: 16, opacity: 0, duration: 0.7 }, 0.2)
+      .from(line1Ref.current, { yPercent: 105, opacity: 0, duration: 1.0 }, 0.35)
+      .from(line2Ref.current, { yPercent: 105, opacity: 0, duration: 1.0 }, 0.5)
+      .from(metaRef.current,  { y: 16, opacity: 0, duration: 0.7 }, 0.75)
+      .from(bioRef.current,   { y: 16, opacity: 0, duration: 0.7 }, 0.88)
+      .from(ctaRef.current,   { y: 16, opacity: 0, duration: 0.7 }, 1.0)
+      .from(scrollRef.current,{ opacity: 0, duration: 0.6 }, 1.2);
   }, []);
 
   return (
     <section className="hero" id="hero">
-      <div ref={canvasRef} className="hero__canvas" aria-hidden="true" />
-      <div className="hero__glow" aria-hidden="true" />
+      {/* Background canvas — Canvas 2D, no WebGL */}
+      <canvas ref={canvasRef} className="hero__canvas" aria-hidden="true" />
 
-      <div className="hero__watermark" aria-hidden="true">ARYAN</div>
+      {/* Vignette */}
+      <div className="hero__vignette" aria-hidden="true" />
+
+      {/* Watermark */}
+      <div className="hero__watermark" aria-hidden="true">AG</div>
 
       <div className="hero__content container">
         <div className="hero__text">
+
+          {/* Tag */}
+          <div ref={tagRef} className="hero__tag">
+            <span className="hero__tag-dot" />
+            Available · San Jose, CA
+          </div>
+
+          {/* Headline */}
           <div className="hero__headline">
-            <div className="hero__line-wrap">
-              <div ref={line1Ref} className="hero__line">
-                <span className="hero__name">Aryan Gaur</span>
-              </div>
+            <div className="hero__clip">
+              <div ref={line1Ref} className="hero__line">Aryan Gaur</div>
             </div>
-            <div className="hero__line-wrap">
-              <div ref={line2Ref} className="hero__line hero__line--italic">
-                <span>AI Engineer.</span>
-              </div>
+            <div className="hero__clip">
+              <div ref={line2Ref} className="hero__line hero__line--accent">AI Engineer.</div>
             </div>
           </div>
 
+          {/* Meta badges */}
           <div ref={metaRef} className="hero__meta">
-            <span className="hero__meta-item">
-              <span className="hero__dot" />
-              SanDisk · GenAI Intern
-            </span>
-            <span className="hero__meta-sep">·</span>
-            <span className="hero__meta-item">San Jose, CA</span>
-            <span className="hero__meta-sep">·</span>
-            <span className="hero__meta-item">SJSU, Class of 2027</span>
+            <span className="hero__badge">SanDisk · GenAI Intern</span>
+            <span className="hero__badge">SJSU · CompE · 2027</span>
           </div>
 
-          <div className="hero__rule" aria-hidden="true" />
-
-          <p className="hero__bio">
-            Computer Engineering student at SJSU — Verilog, FPGAs, digital design, and enough software
-            to bridge both worlds. Currently interning on the GenAI team at SanDisk.
+          {/* Bio */}
+          <p ref={bioRef} className="hero__bio">
+            Computer Engineering student — Verilog, FPGAs, digital design,
+            and enough software to bridge both worlds. Currently on the GenAI
+            team at SanDisk.
           </p>
 
+          {/* CTA */}
           <div ref={ctaRef} className="hero__cta">
             <a href="#experience" className="hero__btn hero__btn--primary" data-hover>
-              Experience
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
+              View Experience
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
             <a href="#contact" className="hero__btn hero__btn--ghost" data-hover>
               Get in touch
@@ -380,7 +279,8 @@ const Hero: React.FC = () => {
         </div>
       </div>
 
-      <div className="hero__scroll" aria-hidden="true">
+      {/* Scroll indicator */}
+      <div ref={scrollRef} className="hero__scroll" aria-hidden="true">
         <span className="hero__scroll-line" />
       </div>
     </section>

@@ -5,141 +5,97 @@ import './Experience.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface Role {
-  index: string;
-  title: string;
-  company: string;
-  period: string;
-  type: string;
-  bullets: string[];
-  stack: string[];
-}
-
-const roles: Role[] = [
+const CARDS = [
   {
-    index: '01',
-    title: 'AI / Software Engineering Intern',
-    company: 'SanDisk',
-    period: '2025 — Present',
-    type: 'GenAI Team',
+    num:     '01',
+    role:    'GenAI Intern',
+    company: 'SanDisk / Western Digital',
+    period:  'Summer 2025',
+    type:    'Internship',
     bullets: [
-      'Building adaptive RAG pipelines for internal knowledge retrieval across proprietary documentation.',
-      'Designing multi-agent architectures with LangGraph — stateful orchestration, memory, planning, tool use.',
-      'Integrating LangFuse for end-to-end LLM tracing and evaluation across GenAI workflows.',
-      'Shipping full-stack tooling with React + FastAPI to surface AI capabilities to internal teams.',
+      'Building multi-agent AI pipelines for internal tooling using LangGraph and LangChain.',
+      'Developing RAG architectures with semantic retrieval and LangFuse observability.',
+      'Full-stack integrations with FastAPI backends and React frontends.',
     ],
-    stack: ['Python', 'LangGraph', 'LangChain', 'LangFuse', 'RAG', 'FastAPI', 'React', 'TypeScript'],
+    stack:   ['Python', 'LangGraph', 'LangChain', 'RAG', 'FastAPI', 'React'],
   },
   {
-    index: '02',
-    title: 'B.S. Computer Engineering',
+    num:     '02',
+    role:    'B.S. Computer Engineering',
     company: 'San Jose State University',
-    period: '2023 — 2027',
-    type: 'Full-time student',
+    period:  '2023 — 2027',
+    type:    'Education',
     bullets: [
-      'Studying Computer Engineering — digital systems, FPGA design, EE fundamentals, and software.',
-      'Coursework in Verilog, circuit analysis, embedded systems, C++, and data structures.',
+      'Studying digital systems, FPGA design, EE fundamentals, and embedded software.',
+      'Coursework in Verilog, circuit analysis, computer architecture, and C++.',
     ],
-    stack: ['Verilog', 'FPGA', 'C++', 'Assembly', 'Circuit Design', 'Embedded Systems'],
+    stack:   ['Verilog', 'FPGA', 'C++', 'Assembly', 'Circuit Design', 'Embedded Systems'],
   },
 ];
 
 const Experience: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const trackRef   = useRef<HTMLDivElement>(null);
+  const headRef    = useRef<HTMLDivElement>(null);
+  const cardsRef   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const section = sectionRef.current;
-    const track   = trackRef.current;
-    if (!section || !track) return;
-
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) return; // vertical on mobile
-
-    const totalWidth = track.scrollWidth - track.clientWidth;
-
     const ctx = gsap.context(() => {
-      gsap.to(track, {
-        x: () => -totalWidth,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          pin: true,
-          scrub: 1.2,
-          end: () => `+=${totalWidth * 1.4}`,
-          invalidateOnRefresh: true,
-        },
+      /* Title reveal */
+      gsap.from(headRef.current, {
+        y: 40, opacity: 0, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: headRef.current, start: 'top 85%' },
       });
 
-      /* Stagger each card in as it enters */
-      const mainST = ScrollTrigger.getAll()[0];
-      gsap.utils.toArray<HTMLElement>('.exp__card').forEach((card, i) => {
-        gsap.from(card, {
-          opacity: 0,
-          y: 40,
-          duration: 0.9,
-          ease: 'expo.out',
-          scrollTrigger: {
-            trigger: card,
-            containerAnimation: mainST as any,
-            start: 'left center',
-            toggleActions: 'play none none none',
-          },
-          delay: i * 0.08,
-        });
+      /* Card stagger */
+      gsap.from('.exp__card', {
+        y: 60, opacity: 0, duration: 0.9, stagger: 0.15, ease: 'power3.out',
+        scrollTrigger: { trigger: cardsRef.current, start: 'top 80%' },
       });
-    }, section);
-
+    }, sectionRef);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section id="experience" className="exp" ref={sectionRef}>
-      <div className="exp__header container">
-        <span className="label">Work & Education</span>
-        <h2 className="exp__title">Where I've been.</h2>
-      </div>
+    <section className="exp" id="experience" ref={sectionRef}>
+      <div className="container">
+        <div ref={headRef} className="exp__head">
+          <span className="exp__label">Experience</span>
+          <h2 className="exp__title">Where I've been.</h2>
+        </div>
 
-      <div className="exp__track" ref={trackRef}>
-        {/* Leading spacer */}
-        <div className="exp__spacer" />
+        <div ref={cardsRef} className="exp__grid">
+          {CARDS.map(card => (
+            <div key={card.num} className="exp__card" data-hover>
+              {/* Card inner shimmer */}
+              <div className="exp__card-shine" aria-hidden="true" />
 
-        {roles.map((role) => (
-          <article key={role.company} className="exp__card" data-hover>
-            {/* Card header */}
-            <div className="exp__card-top">
-              <span className="exp__index">{role.index}</span>
-              <span className="exp__period">{role.period}</span>
+              <div className="exp__card-top">
+                <span className="exp__num">{card.num}</span>
+                <span className="exp__type">{card.type}</span>
+              </div>
+
+              <div className="exp__card-body">
+                <p className="exp__period">{card.period}</p>
+                <h3 className="exp__role">{card.role}</h3>
+                <p className="exp__company">{card.company}</p>
+              </div>
+
+              <div className="exp__divider" />
+
+              <ul className="exp__bullets">
+                {card.bullets.map((b, i) => (
+                  <li key={i}>{b}</li>
+                ))}
+              </ul>
+
+              <div className="exp__stack">
+                {card.stack.map(s => (
+                  <span key={s} className="exp__tag">{s}</span>
+                ))}
+              </div>
             </div>
-
-            {/* Type badge */}
-            <div className="exp__badge">{role.type}</div>
-
-            {/* Title */}
-            <h3 className="exp__role">{role.title}</h3>
-            <p className="exp__company">{role.company}</p>
-
-            {/* Divider */}
-            <div className="exp__rule" />
-
-            {/* Bullets */}
-            <ul className="exp__bullets">
-              {role.bullets.map((b, i) => (
-                <li key={i}>{b}</li>
-              ))}
-            </ul>
-
-            {/* Stack */}
-            <div className="exp__stack">
-              {role.stack.map(t => (
-                <span key={t} className="exp__tag">{t}</span>
-              ))}
-            </div>
-          </article>
-        ))}
-
-        {/* Trailing spacer */}
-        <div className="exp__spacer" />
+          ))}
+        </div>
       </div>
     </section>
   );

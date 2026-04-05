@@ -5,108 +5,84 @@ import './Contact.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const LINKS = [
+  { label: 'Email',    href: 'mailto:gauraryan1027@gmail.com', display: 'gauraryan1027@gmail.com' },
+  { label: 'LinkedIn', href: 'https://linkedin.com/in/aryangaur',   display: 'linkedin.com/in/aryangaur' },
+];
+
 const Contact: React.FC = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-  const bigTextRef = useRef<HTMLDivElement>(null);
+  const sectionRef  = useRef<HTMLElement>(null);
+  const statRef     = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      /* Marquee drift — slightly faster for energy */
+      /* Marquee — infinite */
       gsap.to('.contact__marquee-inner', {
-        xPercent: -50,
-        ease: 'none',
-        duration: 12,
-        repeat: -1,
+        xPercent: -50, ease: 'none', duration: 14, repeat: -1,
       });
 
-      /* Big text reveal on scroll */
-      gsap.from('.contact__statement-line', {
-        yPercent: 120,
-        opacity: 0,
-        stagger: 0.12,
-        duration: 1.2,
-        ease: 'expo.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 70%',
-        },
+      /* Statement reveal */
+      gsap.from('.contact__line-wrap', {
+        yPercent: 110, opacity: 0,
+        duration: 1.0, stagger: 0.12, ease: 'power3.out',
+        scrollTrigger: { trigger: statRef.current, start: 'top 80%' },
       });
 
-      /* Links fade in */
-      gsap.from('.contact__links', {
-        y: 30,
-        opacity: 0,
-        duration: 1.1,
-        ease: 'expo.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 60%',
-        },
-        delay: 0.4,
+      /* Links */
+      gsap.from('.contact__link-row', {
+        y: 24, opacity: 0,
+        duration: 0.7, stagger: 0.1, ease: 'power3.out',
+        scrollTrigger: { trigger: statRef.current, start: 'top 70%' },
       });
     }, sectionRef);
-
     return () => ctx.revert();
   }, []);
 
   return (
-    <section id="contact" className="contact" ref={sectionRef}>
+    <section className="contact" id="contact" ref={sectionRef}>
       {/* Background watermark */}
       <div className="contact__watermark" aria-hidden="true">REACH</div>
 
-      {/* Scrolling marquee */}
+      {/* Marquee */}
       <div className="contact__marquee" aria-hidden="true">
         <div className="contact__marquee-inner">
-          {Array(10).fill(null).map((_, i) => (
-            <span key={i}>
-              <span className={i % 2 === 0 ? 'contact__marquee-word--silver' : 'contact__marquee-word--dim'}>GET IN TOUCH</span>
-              <span className="contact__marquee-sep"> · </span>
+          {Array.from({ length: 10 }, (_, i) => (
+            <span key={i} className={i % 2 === 0 ? 'mq-silver' : 'mq-dim'}>
+              GET IN TOUCH <span className="mq-sep">·</span>{' '}
             </span>
           ))}
         </div>
       </div>
 
-      <div className="contact__inner container">
-        {/* Big typographic statement */}
-        <div className="contact__statement" ref={bigTextRef}>
-          <div className="contact__line-wrap">
-            <span className="contact__statement-line">Let’s build</span>
+      <div className="container">
+        <div className="contact__inner">
+          {/* Big statement */}
+          <div ref={statRef} className="contact__statement">
+            <div className="contact__line-wrap">
+              <span className="contact__line">Let's build</span>
+            </div>
+            <div className="contact__line-wrap">
+              <span className="contact__line contact__line--silver">something.</span>
+            </div>
           </div>
-          <div className="contact__line-wrap">
-            <span className="contact__statement-line contact__statement-line--silver">something.</span>
-          </div>
-          <div className="contact__line-wrap">
-            <span className="contact__statement-line contact__statement-line--small">Reach out anytime.</span>
-          </div>
-        </div>
 
-        {/* Email link */}
-        <a
-          href="mailto:gauraryan1027@gmail.com"
-          className="contact__email"
-          data-hover
-        >
-          gauraryan1027@gmail.com
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-            <path d="M7 17L17 7M17 7H7M17 7v10" />
-          </svg>
-        </a>
+          {/* Sub-copy */}
+          <p className="contact__sub">
+            Reach out anytime — always happy to connect.
+          </p>
 
-        {/* Social links */}
-        <div className="contact__links">
-          <a href="https://github.com/AryanGaur123" target="_blank" rel="noopener noreferrer" className="contact__link" data-hover>
-            GitHub
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M7 17L17 7M17 7H7M17 7v10" />
-            </svg>
-          </a>
-          <span className="contact__sep">·</span>
-          <a href="https://linkedin.com/in/gauraryan" target="_blank" rel="noopener noreferrer" className="contact__link" data-hover>
-            LinkedIn
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M7 17L17 7M17 7H7M17 7v10" />
-            </svg>
-          </a>
+          {/* Links */}
+          <div className="contact__links">
+            {LINKS.map(l => (
+              <a key={l.label} href={l.href} className="contact__link-row" data-hover target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+                <span className="contact__link-label">{l.label}</span>
+                <span className="contact__link-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+                <span className="contact__link-val">{l.display}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </section>
