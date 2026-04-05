@@ -379,7 +379,7 @@ const Hero: React.FC = () => {
             </div>
             <div className="hero__line-wrap">
               <div ref={line2Ref} className="hero__line hero__line--italic">
-                <span>CompE Student.</span>
+                <span>AI Engineer.</span>
               </div>
             </div>
           </div>
