@@ -3,7 +3,8 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass }      from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { OutputPass }      from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { ShaderPass }      from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 import { gsap }            from 'gsap';
 import './Hero.css';
 
@@ -28,7 +29,10 @@ const Hero: React.FC = () => {
     renderer.setSize(W, H);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.25;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // Linear color space while EffectComposer is active — GammaCorrectionShader
+    // handles the sRGB conversion as the final pass instead of OutputPass,
+    // which double-converts on Chrome desktop and produces a black screen.
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     mount.appendChild(renderer.domElement);
 
     const scene  = new THREE.Scene();
@@ -298,7 +302,9 @@ const Hero: React.FC = () => {
       /* threshold */ 0.58,  // catch more specular highlights
     );
     composer.addPass(bloom);
-    composer.addPass(new OutputPass());
+    // GammaCorrectionShader does the linear→sRGB conversion reliably on all
+    // desktop GPUs — avoids the OutputPass black-screen bug on Chrome desktop.
+    composer.addPass(new ShaderPass(GammaCorrectionShader));
 
     /* ── Mouse parallax ───────────────────────────────────────────────── */
     const mouse  = { x: 0, y: 0 };
