@@ -138,6 +138,11 @@ const Hero: React.FC = () => {
     sparkle.position.set(3, -2, 4);
     scene.add(sparkle);
 
+    /* Pulsing central haze light — breathes life into the cluster */
+    const pulse = new THREE.PointLight(0xd0d8ff, 0, 12);
+    pulse.position.set(0.4, 0.2, 2);
+    scene.add(pulse);
+
     /* ── Particle dust — tiny silver specks ───────────────────────────── */
     const dustCount   = 280;
     const dustPos     = new Float32Array(dustCount * 3);
@@ -267,9 +272,9 @@ const Hero: React.FC = () => {
 
     const bloom = new UnrealBloomPass(
       new THREE.Vector2(W, H),
-      /* strength */ 0.55,
-      /* radius   */ 0.72,
-      /* threshold */ 0.62,  // only the brightest specular highlights bloom
+      /* strength */ 0.72,
+      /* radius   */ 0.80,
+      /* threshold */ 0.58,  // catch more specular highlights
     );
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
@@ -306,6 +311,13 @@ const Hero: React.FC = () => {
       // Slowly rotate dust cloud
       dustCloud.rotation.y += 0.00025;
       dustCloud.rotation.x += 0.00012;
+
+      // Pulsing haze light — breathes in and out
+      pulse.intensity = 2.5 + Math.sin(t * 0.8) * 2.0;
+
+      // Slow idle camera drift — subtle, alive
+      camera.position.x = -1.8 + Math.sin(t * 0.18) * 0.12;
+      camera.position.y =        Math.cos(t * 0.13) * 0.08;
 
       // Mouse parallax on group
       target.x += (mouse.x * 0.15 - target.x) * 0.04;
@@ -354,6 +366,9 @@ const Hero: React.FC = () => {
       <div ref={canvasRef} className="hero__canvas" aria-hidden="true" />
       <div className="hero__glow"  aria-hidden="true" />
 
+      {/* Large watermark word — pure CSS depth layer */}
+      <div className="hero__watermark" aria-hidden="true">ARYAN</div>
+
       <div className="hero__content container">
         <div className="hero__text">
           <div className="hero__headline">
@@ -364,7 +379,7 @@ const Hero: React.FC = () => {
             </div>
             <div className="hero__line-wrap">
               <div ref={line2Ref} className="hero__line hero__line--italic">
-                <span>AI Engineer.</span>
+                <span>CompE Student.</span>
               </div>
             </div>
           </div>
@@ -379,6 +394,8 @@ const Hero: React.FC = () => {
             <span className="hero__meta-sep">·</span>
             <span className="hero__meta-item">SJSU, Class of 2027</span>
           </div>
+
+          <div className="hero__rule" aria-hidden="true" />
 
           <p className="hero__bio">
             Computer Engineering student at SJSU — Verilog, FPGAs, digital design, and enough software

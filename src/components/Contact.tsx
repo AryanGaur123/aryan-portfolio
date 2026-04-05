@@ -51,6 +51,9 @@ const Contact: React.FC = () => {
 
   return (
     <section id="contact" className="contact" ref={sectionRef}>
+      {/* Background watermark */}
+      <div className="contact__watermark" aria-hidden="true">REACH</div>
+
       {/* Scrolling marquee */}
       <div className="contact__marquee" aria-hidden="true">
         <div className="contact__marquee-inner">
@@ -62,13 +65,13 @@ const Contact: React.FC = () => {
         {/* Big typographic statement */}
         <div className="contact__statement" ref={bigTextRef}>
           <div className="contact__line-wrap">
-            <span className="contact__statement-line">Got something</span>
+            <span className="contact__statement-line">Let’s build</span>
           </div>
           <div className="contact__line-wrap">
-            <span className="contact__statement-line contact__statement-line--silver">interesting?</span>
+            <span className="contact__statement-line contact__statement-line--silver">something.</span>
           </div>
           <div className="contact__line-wrap">
-            <span className="contact__statement-line contact__statement-line--small">Let's talk.</span>
+            <span className="contact__statement-line contact__statement-line--small">Reach out anytime.</span>
           </div>
         </div>
 
