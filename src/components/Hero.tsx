@@ -1,11 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass }      from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { ShaderPass }      from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
-import { gsap }            from 'gsap';
+import { gsap } from 'gsap';
 import './Hero.css';
 
 const Hero: React.FC = () => {
@@ -15,36 +10,36 @@ const Hero: React.FC = () => {
   const metaRef   = useRef<HTMLDivElement>(null);
   const ctaRef    = useRef<HTMLDivElement>(null);
 
-  /* ── Three.js — silver metallic geometry + bloom ──────────────────────── */
+  /* ── Three.js — silver metallic geometry, no EffectComposer ────────────── */
   useEffect(() => {
     const mount = canvasRef.current;
     if (!mount) return;
 
-    const W = mount.clientWidth;
-    const H = mount.clientHeight;
+    const W = mount.clientWidth  || window.innerWidth;
+    const H = mount.clientHeight || window.innerHeight;
 
-    /* Renderer */
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    /* ── Renderer — plain WebGLRenderer, no composer ─────────────────────── */
+    const renderer = new THREE.WebGLRenderer({
+      antialias:    true,
+      alpha:        true,
+      powerPreference: 'high-performance',
+    });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(W, H);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
-    // Linear color space while EffectComposer is active — GammaCorrectionShader
-    // handles the sRGB conversion as the final pass instead of OutputPass,
-    // which double-converts on Chrome desktop and produces a black screen.
-    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    renderer.toneMapping        = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.3;
+    renderer.outputColorSpace   = THREE.SRGBColorSpace;
     mount.appendChild(renderer.domElement);
 
     const scene  = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 100);
-    camera.position.set(-1.8, 0, 8); // shifted left so geometry fills right half
+    camera.position.set(-1.8, 0, 8);
 
-    /* ── Procedural silver-studio env map ───────────────────────────────── */
+    /* ── Procedural PMREM env map ─────────────────────────────────────────── */
     const pmrem    = new THREE.PMREMGenerator(renderer);
     pmrem.compileEquirectangularShader();
 
     const envScene = new THREE.Scene();
-    // Sky dome — warm silver gradient
     envScene.add(new THREE.Mesh(
       new THREE.SphereGeometry(50, 32, 32),
       new THREE.ShaderMaterial({
@@ -56,31 +51,26 @@ const Hero: React.FC = () => {
         fragmentShader: `
           varying vec3 vPos;
           void main(){
-            float y   = normalize(vPos).y * .5 + .5;
-            // Silver studio: near-white top, mid silver, dark base
-            vec3 top  = vec3(.82, .82, .84);
-            vec3 mid  = vec3(.45, .45, .47);
-            vec3 bot  = vec3(.04, .04, .045);
-            vec3 c    = mix(bot, mix(mid, top, y * 1.3), y);
-            // Bright horizon rim light (silver sheen)
+            float y  = normalize(vPos).y * .5 + .5;
+            vec3 top = vec3(.82,.82,.84);
+            vec3 mid = vec3(.45,.45,.47);
+            vec3 bot = vec3(.04,.04,.045);
+            vec3 c   = mix(bot, mix(mid, top, y * 1.3), y);
             float rim = pow(1. - abs(normalize(vPos).y), 6.);
-            c        += rim * vec3(.95, .93, .90);
-            // Subtle warm top fill
-            c        += (1. - y) * 0.0 + y * y * vec3(.12, .11, .10);
+            c += rim * vec3(.95,.93,.90);
             gl_FragColor = vec4(c, 1.);
           }
         `,
       })
     ));
 
-    // Bake bright point lights into the env
     const envLights: { p: [number,number,number]; s: number; c: number }[] = [
-      { p: [ 12,  18,   8], s: 12.0, c: 0xffffff  }, // key — bright white
-      { p: [-14,   5,  -6], s:  5.0, c: 0xe8e8e8  }, // fill — cool silver
-      { p: [  0, -10,   8], s:  3.0, c: 0xd0d0d0  }, // under-fill
-      { p: [  8,   2, -14], s:  4.0, c: 0xcccccc  }, // back rim
-      { p: [ -5,  -5,  10], s:  2.5, c: 0xb8b8b8  }, // front soft
-      { p: [  0,  20,   0], s:  6.0, c: 0xffffff  }, // overhead
+      { p: [ 12,  18,   8], s: 10.0, c: 0xffffff },
+      { p: [-14,   5,  -6], s:  4.0, c: 0xe8e8e8 },
+      { p: [  0, -10,   8], s:  2.5, c: 0xd0d0d0 },
+      { p: [  8,   2, -14], s:  3.0, c: 0xcccccc },
+      { p: [ -5,  -5,  10], s:  2.0, c: 0xb8b8b8 },
+      { p: [  0,  20,   0], s:  5.0, c: 0xffffff },
     ];
     envLights.forEach(({ p, s, c }) => {
       const mat = new THREE.MeshBasicMaterial({ color: c });
@@ -93,9 +83,7 @@ const Hero: React.FC = () => {
     const envTex = pmrem.fromScene(envScene).texture;
     scene.environment = envTex;
 
-    /* ── Silver physical material factory ──────────────────────────────── */
-    //  roughness 0.05–0.12 = mirror-like polished silver
-    //  clearcoat + anisotropy = brushed-metal highlights
+    /* ── Materials ────────────────────────────────────────────────────────── */
     const silverMat = (roughness = 0.07, tint = 0xc8c8d0) =>
       new THREE.MeshPhysicalMaterial({
         color:              new THREE.Color(tint),
@@ -107,20 +95,19 @@ const Hero: React.FC = () => {
         clearcoatRoughness: 0.08,
       });
 
-    // Darker, slightly warmer variant for contrast
     const darkSilver = (roughness = 0.15) =>
       new THREE.MeshPhysicalMaterial({
-        color:           new THREE.Color(0x909098),
-        metalness:       1.0,
+        color:              new THREE.Color(0x909098),
+        metalness:          1.0,
         roughness,
-        envMap:          envTex,
-        envMapIntensity: 2.2,
-        clearcoat:       0.3,
+        envMap:             envTex,
+        envMapIntensity:    2.2,
+        clearcoat:          0.3,
         clearcoatRoughness: 0.2,
       });
 
-    /* ── Scene lights (on top of env) ──────────────────────────────────── */
-    scene.add(new THREE.AmbientLight(0xffffff, 0.08));
+    /* ── Lights ───────────────────────────────────────────────────────────── */
+    scene.add(new THREE.AmbientLight(0xffffff, 0.1));
 
     const key = new THREE.DirectionalLight(0xffffff, 4);
     key.position.set(7, 12, 6);
@@ -142,57 +129,43 @@ const Hero: React.FC = () => {
     sparkle.position.set(3, -2, 4);
     scene.add(sparkle);
 
-    /* Pulsing central haze light — breathes life into the cluster */
     const pulse = new THREE.PointLight(0xd0d8ff, 0, 12);
     pulse.position.set(0.4, 0.2, 2);
     scene.add(pulse);
 
-    /* ── Particle dust — tiny silver specks ───────────────────────────── */
-    const dustCount   = 280;
-    const dustPos     = new Float32Array(dustCount * 3);
-    const dustSizes   = new Float32Array(dustCount);
+    /* ── Particle dust ────────────────────────────────────────────────────── */
+    const dustCount = 280;
+    const dustPos   = new Float32Array(dustCount * 3);
     for (let i = 0; i < dustCount; i++) {
-      dustPos[i * 3 + 0] = (Math.random() - 0.5) * 9;
+      dustPos[i * 3]     = (Math.random() - 0.5) * 9;
       dustPos[i * 3 + 1] = (Math.random() - 0.5) * 7;
       dustPos[i * 3 + 2] = (Math.random() - 0.5) * 4;
-      dustSizes[i]        = 0.5 + Math.random() * 2.0;
     }
     const dustGeo = new THREE.BufferGeometry();
     dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
-    dustGeo.setAttribute('size',     new THREE.BufferAttribute(dustSizes, 1));
-
-    const dustMat = new THREE.PointsMaterial({
-      color:       0xd0d0d8,
-      size:        0.018,
-      sizeAttenuation: true,
-      transparent: true,
-      opacity:     0.55,
-      blending:    THREE.AdditiveBlending,
-      depthWrite:  false,
-    });
-    const dustCloud = new THREE.Points(dustGeo, dustMat);
+    const dustCloud = new THREE.Points(dustGeo, new THREE.PointsMaterial({
+      color: 0xd0d0d8, size: 0.018, sizeAttenuation: true,
+      transparent: true, opacity: 0.5,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
     scene.add(dustCloud);
 
-    /* ── Geometry cluster ───────────────────────────────────────────────── */
+    /* ── Geometry cluster ─────────────────────────────────────────────────── */
     type Piece = {
-      mesh:       THREE.Mesh;
-      ox: number; oy: number; oz: number;
-      phase:      number;
-      speedX:     number; speedY: number; speedZ: number;
-      floatAmp:   number; floatSpeed: number;
+      mesh: THREE.Mesh;
+      ox: number; oy: number;
+      phase: number;
+      speedX: number; speedY: number; speedZ: number;
+      floatAmp: number; floatSpeed: number;
     };
     const pieces: Piece[] = [];
 
     const addPiece = (
-      geo:   THREE.BufferGeometry,
-      mat:   THREE.Material,
-      pos:   [number, number, number],
-      scale: number,
-      phase: number,
+      geo: THREE.BufferGeometry, mat: THREE.Material,
+      pos: [number, number, number], phase: number,
     ) => {
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.set(...pos);
-      mesh.scale.setScalar(scale);
       mesh.rotation.set(
         Math.random() * Math.PI * 2,
         Math.random() * Math.PI * 2,
@@ -200,113 +173,81 @@ const Hero: React.FC = () => {
       );
       scene.add(mesh);
       pieces.push({
-        mesh,
-        ox: pos[0], oy: pos[1], oz: pos[2],
-        phase,
-        speedX:     (Math.random() - 0.5) * 0.5,
-        speedY:     (Math.random() - 0.5) * 0.7,
-        speedZ:     (Math.random() - 0.5) * 0.35,
-        floatAmp:   0.07 + Math.random() * 0.13,
+        mesh, ox: pos[0], oy: pos[1], phase,
+        speedX:    (Math.random() - 0.5) * 0.5,
+        speedY:    (Math.random() - 0.5) * 0.7,
+        speedZ:    (Math.random() - 0.5) * 0.35,
+        floatAmp:  0.07 + Math.random() * 0.13,
         floatSpeed: 0.55 + Math.random() * 0.9,
       });
     };
 
-    // Central — polished icosahedron (sharpest reflections)
-    addPiece(new THREE.IcosahedronGeometry(0.52, 1),   silverMat(0.04),       [ 0.4,  0.2,  0.0], 1.0, 0.0);
+    addPiece(new THREE.IcosahedronGeometry(0.52, 1),  silverMat(0.04),  [ 0.4,  0.2,  0.0], 0.0);
+    addPiece(new THREE.OctahedronGeometry(0.30, 0),   silverMat(0.06),  [ 1.9,  0.9, -0.5], 0.7);
+    addPiece(new THREE.IcosahedronGeometry(0.24, 0),  darkSilver(0.10), [-1.7,  0.5,  0.3], 1.4);
+    addPiece(new THREE.TetrahedronGeometry(0.27, 0),  silverMat(0.03),  [ 1.3, -1.1,  0.4], 2.1);
+    addPiece(new THREE.DodecahedronGeometry(0.22, 0), darkSilver(0.12), [-1.3, -1.0, -0.3], 2.8);
+    addPiece(new THREE.OctahedronGeometry(0.19, 0),   silverMat(0.05),  [ 0.0,  1.7,  0.2], 3.5);
+    addPiece(new THREE.IcosahedronGeometry(0.13, 0),  silverMat(0.04),  [ 2.7, -0.3,  0.2], 0.4);
+    addPiece(new THREE.OctahedronGeometry(0.11, 0),   darkSilver(0.08), [-2.5,  1.3, -0.4], 1.1);
+    addPiece(new THREE.TetrahedronGeometry(0.12, 0),  silverMat(0.06),  [ 0.3,  2.0,  0.1], 1.8);
+    addPiece(new THREE.IcosahedronGeometry(0.09, 0),  silverMat(0.03),  [-0.6, -1.9,  0.3], 2.5);
+    addPiece(new THREE.DodecahedronGeometry(0.10, 0), darkSilver(0.15), [ 2.1,  1.6, -0.6], 3.2);
+    addPiece(new THREE.TetrahedronGeometry(0.08, 0),  silverMat(0.04),  [-0.9,  1.2,  0.5], 0.9);
 
-    // Medium — varied shapes for visual interest
-    addPiece(new THREE.OctahedronGeometry(0.30, 0),    silverMat(0.06),       [ 1.9,  0.9, -0.5], 1.0, 0.7);
-    addPiece(new THREE.IcosahedronGeometry(0.24, 0),   darkSilver(0.10),      [-1.7,  0.5,  0.3], 1.0, 1.4);
-    addPiece(new THREE.TetrahedronGeometry(0.27, 0),   silverMat(0.03),       [ 1.3, -1.1,  0.4], 1.0, 2.1);
-    addPiece(new THREE.DodecahedronGeometry(0.22, 0),  darkSilver(0.12),      [-1.3, -1.0, -0.3], 1.0, 2.8);
-    addPiece(new THREE.OctahedronGeometry(0.19, 0),    silverMat(0.05),       [ 0.0,  1.7,  0.2], 1.0, 3.5);
-
-    // Small accent pieces
-    addPiece(new THREE.IcosahedronGeometry(0.13, 0),   silverMat(0.04),       [ 2.7, -0.3,  0.2], 1.0, 0.4);
-    addPiece(new THREE.OctahedronGeometry(0.11, 0),    darkSilver(0.08),      [-2.5,  1.3, -0.4], 1.0, 1.1);
-    addPiece(new THREE.TetrahedronGeometry(0.12, 0),   silverMat(0.06),       [ 0.3,  2.0,  0.1], 1.0, 1.8);
-    addPiece(new THREE.IcosahedronGeometry(0.09, 0),   silverMat(0.03),       [-0.6, -1.9,  0.3], 1.0, 2.5);
-    addPiece(new THREE.DodecahedronGeometry(0.10, 0),  darkSilver(0.15),      [ 2.1,  1.6, -0.6], 1.0, 3.2);
-    addPiece(new THREE.TetrahedronGeometry(0.08, 0),   silverMat(0.04),       [-0.9,  1.2,  0.5], 1.0, 0.9);
-
-    // Thin torus rings — wispy and reflective
+    // Torus rings
     const addRing = (
       r: number, tube: number,
       pos: [number, number, number],
-      rotX: number, rotZ: number,
-      phase: number, roughness = 0.05,
+      rotX: number, rotZ: number, phase: number,
     ) => {
       const mesh = new THREE.Mesh(
-        new THREE.TorusGeometry(r, tube, 8, 140),
-        silverMat(roughness, 0xe0e0e8),
+        new THREE.TorusGeometry(r, tube, 8, 120),
+        silverMat(0.05, 0xe0e0e8),
       );
       mesh.position.set(...pos);
       mesh.rotation.x = rotX;
       mesh.rotation.z = rotZ;
       scene.add(mesh);
       pieces.push({
-        mesh,
-        ox: pos[0], oy: pos[1], oz: pos[2],
-        phase,
+        mesh, ox: pos[0], oy: pos[1], phase,
         speedX: 0.12, speedY: 0.18, speedZ: 0.08,
-        floatAmp:   0.05,
-        floatSpeed: 0.45,
+        floatAmp: 0.05, floatSpeed: 0.45,
       });
     };
-    addRing(0.44, 0.011, [ 0.4,  0.2,  0.0],  Math.PI / 2.2, 0.4,  0.0);
-    addRing(0.56, 0.009, [ 0.4,  0.2,  0.0],  Math.PI / 6,   1.1,  0.5);
-    addRing(0.27, 0.009, [ 1.9,  0.9, -0.5],  Math.PI / 3,   0.8,  0.9);
-    addRing(0.21, 0.008, [-1.7,  0.5,  0.3],  Math.PI / 4,  -0.5,  1.6);
-    addRing(0.18, 0.007, [-1.3, -1.0, -0.3],  Math.PI / 5,   0.3,  2.2);
+    addRing(0.44, 0.011, [ 0.4,  0.2,  0.0], Math.PI / 2.2, 0.4,  0.0);
+    addRing(0.56, 0.009, [ 0.4,  0.2,  0.0], Math.PI / 6,   1.1,  0.5);
+    addRing(0.27, 0.009, [ 1.9,  0.9, -0.5], Math.PI / 3,   0.8,  0.9);
+    addRing(0.21, 0.008, [-1.7,  0.5,  0.3], Math.PI / 4,  -0.5,  1.6);
+    addRing(0.18, 0.007, [-1.3, -1.0, -0.3], Math.PI / 5,   0.3,  2.2);
 
-
-    /* ── Wireframe ghost icosahedron — orbits slowly behind cluster ───── */
-    const ghostGeo = new THREE.IcosahedronGeometry(1.6, 1);
-    const ghostMat = new THREE.MeshBasicMaterial({
-      color: 0x707080,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.10,
-    });
-    const ghost = new THREE.Mesh(ghostGeo, ghostMat);
+    // Wireframe ghosts
+    const ghost = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.6, 1),
+      new THREE.MeshBasicMaterial({ color: 0x707080, wireframe: true, transparent: true, opacity: 0.08 }),
+    );
     ghost.position.set(0.4, 0.2, -0.5);
     scene.add(ghost);
 
-    /* Smaller wireframe octahedron accent */
     const ghost2 = new THREE.Mesh(
       new THREE.OctahedronGeometry(1.0, 0),
-      new THREE.MeshBasicMaterial({ color: 0x808090, wireframe: true, transparent: true, opacity: 0.07 }),
+      new THREE.MeshBasicMaterial({ color: 0x808090, wireframe: true, transparent: true, opacity: 0.06 }),
     );
     ghost2.position.set(1.2, -0.4, -1.0);
     scene.add(ghost2);
 
-    /* Entrance — scale from 0, staggered */
+    /* Entrance animation */
     pieces.forEach(({ mesh }, i) => {
       mesh.scale.setScalar(0);
       gsap.to(mesh.scale, {
         x: 1, y: 1, z: 1,
         duration: 2.0,
-        delay:    0.3 + i * 0.045,
-        ease:     'expo.out',
+        delay: 0.3 + i * 0.045,
+        ease: 'expo.out',
       });
     });
 
-    /* ── EffectComposer: Bloom + Output ───────────────────────────────── */
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-
-    const bloom = new UnrealBloomPass(
-      new THREE.Vector2(W, H),
-      /* strength */ 0.72,
-      /* radius   */ 0.80,
-      /* threshold */ 0.58,  // catch more specular highlights
-    );
-    composer.addPass(bloom);
-    // GammaCorrectionShader does the linear→sRGB conversion reliably on all
-    // desktop GPUs — avoids the OutputPass black-screen bug on Chrome desktop.
-    composer.addPass(new ShaderPass(GammaCorrectionShader));
-
-    /* ── Mouse parallax ───────────────────────────────────────────────── */
+    /* ── Mouse parallax ───────────────────────────────────────────────────── */
     const mouse  = { x: 0, y: 0 };
     const target = { x: 0, y: 0 };
     const onMove = (e: MouseEvent) => {
@@ -315,12 +256,11 @@ const Hero: React.FC = () => {
     };
     window.addEventListener('mousemove', onMove);
 
-    /* Group for parallax */
     const group = new THREE.Group();
     pieces.forEach(p => { scene.remove(p.mesh); group.add(p.mesh); });
     scene.add(group);
 
-    /* ── Animate ──────────────────────────────────────────────────────── */
+    /* ── Animate — direct renderer.render(), no composer ─────────────────── */
     let animId: number;
     let t = 0;
     const animate = () => {
@@ -335,40 +275,33 @@ const Hero: React.FC = () => {
         p.mesh.position.x  = p.ox + Math.cos(t * p.floatSpeed * 0.7 + p.phase) * (p.floatAmp * 0.45);
       });
 
-      // Slowly rotate dust cloud
       dustCloud.rotation.y += 0.00025;
       dustCloud.rotation.x += 0.00012;
 
-      // Wireframe ghost — slow independent orbit
       ghost.rotation.y  += 0.0008;
       ghost.rotation.x  += 0.0003;
       ghost2.rotation.y -= 0.0006;
       ghost2.rotation.z += 0.0004;
 
-      // Pulsing haze light — breathes in and out
       pulse.intensity = 1.0 + Math.sin(t * 0.8) * 0.8;
 
-      // Slow idle camera drift — subtle, alive
       camera.position.x = -1.8 + Math.sin(t * 0.18) * 0.12;
       camera.position.y =        Math.cos(t * 0.13) * 0.08;
 
-      // Mouse parallax on group
       target.x += (mouse.x * 0.15 - target.x) * 0.04;
       target.y += (mouse.y * 0.10 - target.y) * 0.04;
       group.rotation.y = target.x * 0.5;
       group.rotation.x = target.y * 0.3;
 
-      composer.render();
+      renderer.render(scene, camera);
     };
     animate();
 
-    /* Resize */
+    /* ── Resize ───────────────────────────────────────────────────────────── */
     const onResize = () => {
       const w = mount.clientWidth;
       const h = mount.clientHeight;
       renderer.setSize(w, h);
-      composer.setSize(w, h);
-      bloom.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     };
@@ -379,7 +312,6 @@ const Hero: React.FC = () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('resize', onResize);
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
-      composer.dispose();
       renderer.dispose();
       pmrem.dispose();
     };
@@ -397,9 +329,8 @@ const Hero: React.FC = () => {
   return (
     <section className="hero" id="hero">
       <div ref={canvasRef} className="hero__canvas" aria-hidden="true" />
-      <div className="hero__glow"  aria-hidden="true" />
+      <div className="hero__glow" aria-hidden="true" />
 
-      {/* Large watermark word — pure CSS depth layer */}
       <div className="hero__watermark" aria-hidden="true">ARYAN</div>
 
       <div className="hero__content container">

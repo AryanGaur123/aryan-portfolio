@@ -50,6 +50,8 @@
 .hero__canvas canvas {
   width: 100% !important;
   height: 100% !important;
+  /* CSS bloom substitute — works on every GPU, no render targets needed */
+  filter: brightness(1.08) contrast(1.05);
 }
 
 /* ── Radial glow + vignette ──────────────────────────────────────────────── */
