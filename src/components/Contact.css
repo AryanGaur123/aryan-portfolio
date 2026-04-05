@@ -40,10 +40,23 @@
   font-size: var(--step--1);
   font-weight: 500;
   letter-spacing: 0.2em;
-  color: var(--text-faint);
   text-transform: uppercase;
-  /* duplicate so loop is seamless */
   width: 200%;
+}
+
+.contact__marquee-word--silver {
+  background: linear-gradient(118deg, #909098 0%, #d8d8e8 40%, #888890 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.contact__marquee-word--dim {
+  color: var(--text-faint);
+}
+
+.contact__marquee-sep {
+  color: var(--surface-4);
 }
 
 /* ── Statement ───────────────────────────────────────────────────────────── */

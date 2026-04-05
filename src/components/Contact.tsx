@@ -11,11 +11,11 @@ const Contact: React.FC = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      /* Marquee slow drift */
+      /* Marquee drift — slightly faster for energy */
       gsap.to('.contact__marquee-inner', {
         xPercent: -50,
         ease: 'none',
-        duration: 18,
+        duration: 12,
         repeat: -1,
       });
 
@@ -57,7 +57,12 @@ const Contact: React.FC = () => {
       {/* Scrolling marquee */}
       <div className="contact__marquee" aria-hidden="true">
         <div className="contact__marquee-inner">
-          {Array(10).fill('GET IN TOUCH · ').join('')}
+          {Array(10).fill(null).map((_, i) => (
+            <span key={i}>
+              <span className={i % 2 === 0 ? 'contact__marquee-word--silver' : 'contact__marquee-word--dim'}>GET IN TOUCH</span>
+              <span className="contact__marquee-sep"> · </span>
+            </span>
+          ))}
         </div>
       </div>
 
