@@ -7,7 +7,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const LINKS = [
   { label: 'Email',    href: 'mailto:gauraryan1027@gmail.com', display: 'gauraryan1027@gmail.com' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/aryangaur',   display: 'linkedin.com/in/aryangaur' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/gauraryan', display: 'linkedin.com/in/gauraryan' },
 ];
 
 const Contact: React.FC = () => {
