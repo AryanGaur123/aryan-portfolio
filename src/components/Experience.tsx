@@ -3,6 +3,7 @@ import { gsap } from '../lib/gsap';
 import FloatingCard from './cards/FloatingCard';
 import { CARDS } from './cards/cardData';
 import SpinningLogo from './scene/SpinningLogo';
+import ScrambleText from './layout/ScrambleText';
 import './Experience.css';
 
 const Experience: React.FC = () => {
@@ -11,6 +12,7 @@ const Experience: React.FC = () => {
   const cardsRef   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
     const ctx = gsap.context(() => {
       /* Title reveal */
       gsap.from(headRef.current, {
@@ -47,17 +49,20 @@ const Experience: React.FC = () => {
         /* Counter-parallax — cards drift at different rates while the
            section scrolls through, so the grid feels alive in space.
            scrub: true (no extra lag) — Lenis already smooths the scroll,
-           and stacking a second smoothing pass reads as jitter. */
-        gsap.to(el, {
-          yPercent: fromLeft ? -4 : 4,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: cardsRef.current,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: true,
-          },
-        });
+           and stacking a second smoothing pass reads as jitter.
+           Desktop only: scrubbing against touch momentum reads as skipping. */
+        if (!isTouch) {
+          gsap.to(el, {
+            yPercent: fromLeft ? -4 : 4,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: cardsRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }
       });
     }, sectionRef);
     return () => ctx.revert();
@@ -68,7 +73,7 @@ const Experience: React.FC = () => {
       <div className="container">
         <div ref={headRef} className="exp__head">
           <span className="exp__label">Experience</span>
-          <h2 className="exp__title">Where I've been.</h2>
+          <h2 className="exp__title"><ScrambleText text="Where I've been." /></h2>
         </div>
 
         <div ref={cardsRef} className="exp__grid">

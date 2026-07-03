@@ -22,6 +22,11 @@ export function useDeviceTier(): DeviceTier {
   return useMemo(() => {
     if (!probeWebGL()) return 'fallback';
 
+    // Touch devices always get the reduced tier: phones report plenty of
+    // cores (and Safari hides deviceMemory), but bloom + 8k stars at dpr 2
+    // drops frames during touch momentum scroll — the "skipping" feel.
+    if (window.matchMedia('(pointer: coarse)').matches) return 'reduced';
+
     const cores = navigator.hardwareConcurrency ?? 4;
     const memory = (navigator as { deviceMemory?: number }).deviceMemory ?? 8;
     if (cores <= 4 || memory <= 4) return 'reduced';

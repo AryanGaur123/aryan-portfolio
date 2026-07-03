@@ -26,6 +26,7 @@ const GalaxyBackground: React.FC<GalaxyBackgroundProps> = ({
         dpr={full ? [1, 2] : 1}
         gl={{ antialias: false, powerPreference: 'high-performance' }}
         camera={{ position: [0, 1.4, 4.6], fov: 55 }}
+        onCreated={() => window.dispatchEvent(new Event('ag:galaxy-ready'))}
       >
         {/* Explicit deep-space base — never rely on DOM showing through the
             postprocessing pipeline's framebuffer */}

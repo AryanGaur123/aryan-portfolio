@@ -11,8 +11,22 @@ export const scrollState = {
   progress: 0,
 };
 
+let lenisInstance: Lenis | null = null;
+
+/** Smooth-scroll to a selector from anywhere (command palette, buttons). */
+export function scrollToTarget(selector: string): void {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  if (lenisInstance) {
+    lenisInstance.scrollTo(el as HTMLElement, { duration: 1.4 });
+  } else {
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
 export function initLenis(): () => void {
   const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+  lenisInstance = lenis;
 
   lenis.on('scroll', () => {
     const limit = (lenis as unknown as { limit: number }).limit;
@@ -44,5 +58,6 @@ export function initLenis(): () => void {
     document.removeEventListener('click', onAnchorClick);
     cancelAnimationFrame(rafId);
     lenis.destroy();
+    lenisInstance = null;
   };
 }

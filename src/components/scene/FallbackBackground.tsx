@@ -110,6 +110,7 @@ const FallbackBackground: React.FC = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    window.dispatchEvent(new Event('ag:galaxy-ready'));
     return initCanvas(canvas);
   }, []);
 
