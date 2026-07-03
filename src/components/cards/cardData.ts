@@ -30,7 +30,7 @@ export const CARDS: CardData[] = [
     num:     '01',
     role:    'GenAI Intern',
     company: 'SanDisk',
-    period:  'Summer 2025',
+    period:  'Jun 2025 — Present',
     type:    'Internship',
     bullets: [
       'Optimized KV cache reads across the inference platform, cutting platform costs by 40%.',
