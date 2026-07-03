@@ -28,7 +28,20 @@ export function initLenis(): () => void {
   };
   rafId = requestAnimationFrame(raf);
 
+  /* Anchor links glide via Lenis instead of hard-jumping — a native #hash
+     jump reads as a glitch when everything else scrolls smoothly. */
+  const onAnchorClick = (e: MouseEvent) => {
+    const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
+    if (!anchor) return;
+    const target = document.querySelector(anchor.getAttribute('href')!);
+    if (!target) return;
+    e.preventDefault();
+    lenis.scrollTo(target as HTMLElement, { duration: 1.4 });
+  };
+  document.addEventListener('click', onAnchorClick);
+
   return () => {
+    document.removeEventListener('click', onAnchorClick);
     cancelAnimationFrame(rafId);
     lenis.destroy();
   };

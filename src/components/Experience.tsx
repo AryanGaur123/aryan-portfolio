@@ -45,15 +45,17 @@ const Experience: React.FC = () => {
         });
 
         /* Counter-parallax — cards drift at different rates while the
-           section scrolls through, so the grid feels alive in space */
+           section scrolls through, so the grid feels alive in space.
+           scrub: true (no extra lag) — Lenis already smooths the scroll,
+           and stacking a second smoothing pass reads as jitter. */
         gsap.to(el, {
-          yPercent: fromLeft ? -5 : 5,
+          yPercent: fromLeft ? -4 : 4,
           ease: 'none',
           scrollTrigger: {
             trigger: cardsRef.current,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 1.2,
+            scrub: true,
           },
         });
       });

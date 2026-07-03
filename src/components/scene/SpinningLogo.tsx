@@ -1,9 +1,14 @@
 import React, { Suspense, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import * as THREE from 'three';
 import { useSvgExtrude } from '../../hooks/useSvgExtrude';
 import { useInViewLazyMount } from '../../hooks/useInViewLazyMount';
-import { LogoConfig } from '../cards/cardData';
+import { LogoConfig, CARDS } from '../cards/cardData';
+
+// Warm the SVGLoader cache at module load so the geometry is ready the
+// moment a logo canvas mounts — no fetch/parse pop-in on first scroll.
+CARDS.forEach(c => c.logo && useLoader.preload(SVGLoader, c.logo.svg));
 
 interface LogoMeshProps {
   config: LogoConfig;
@@ -53,10 +58,14 @@ interface SpinningLogoProps {
  * deliberately NO postprocessing here; brightness comes from the light rig.
  */
 const SpinningLogo: React.FC<SpinningLogoProps> = ({ config, hovered }) => {
-  const { ref, inView } = useInViewLazyMount<HTMLDivElement>('250px');
+  const { ref, inView } = useInViewLazyMount<HTMLDivElement>('600px');
 
   return (
-    <div ref={ref} style={{ width: '100%', height: '100%' }} aria-hidden="true">
+    <div
+      ref={ref}
+      className={`spinning-logo${inView ? ' spinning-logo--in' : ''}`}
+      aria-hidden="true"
+    >
       {inView && (
         <Canvas
           dpr={[1, 2]}

@@ -37,10 +37,12 @@
 /* Card */
 .exp__card {
   position: relative;
-  /* Glassy — the galaxy bleeds through behind the card */
-  background: rgba(15, 15, 22, 0.62);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  /* Glassy — the galaxy bleeds through behind the card.
+     Mostly-opaque + light blur: heavy backdrop blur over an always-moving
+     WebGL scene forces constant repaints and janks the scroll. */
+  background: rgba(13, 13, 20, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid var(--border);
   border-radius: var(--radius-l);
   padding: var(--s-xl);
