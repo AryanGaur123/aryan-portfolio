@@ -73,9 +73,9 @@ const Hero: React.FC = () => {
 
           {/* Bio */}
           <p className="hero__bio">
-            Computer Engineering student — Verilog, FPGAs, digital design,
-            and enough software to bridge both worlds. Currently on the GenAI
-            team at SanDisk.
+            Computer Engineering student — Verilog, FPGAs, and digital design,
+            with deep professional experience in software and AI architecture
+            bridging both worlds. Currently on the GenAI team at SanDisk.
           </p>
 
           {/* CTA */}

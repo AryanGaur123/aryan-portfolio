@@ -29,15 +29,15 @@ export const CARDS: CardData[] = [
   {
     num:     '01',
     role:    'GenAI Intern',
-    company: 'SanDisk / Western Digital',
+    company: 'SanDisk',
     period:  'Summer 2025',
     type:    'Internship',
     bullets: [
-      'Building multi-agent AI pipelines for internal tooling using LangGraph and LangChain.',
-      'Developing RAG architectures with semantic retrieval and LangFuse observability.',
-      'Full-stack integrations with FastAPI backends and React frontends.',
+      'Optimized KV cache reads across the inference platform, cutting platform costs by 40%.',
+      'Engineered load balancing and Kubernetes orchestration for large-scale distributed systems.',
+      'Architected multi-agent LangGraph pipelines with RAG, MCP integrations, and LangFuse observability.',
     ],
-    stack:   ['Python', 'LangGraph', 'LangChain', 'RAG', 'FastAPI', 'React'],
+    stack:   ['Python', 'LangGraph', 'RAG', 'MCP', 'Kubernetes', 'FastAPI'],
     logo: {
       svg: sandiskSvg,
       color: '#e10600',
