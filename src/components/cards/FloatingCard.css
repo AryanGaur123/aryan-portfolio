@@ -1,0 +1,31 @@
+.fcard-wrap {
+  perspective: 1200px;
+  will-change: transform;
+}
+
+.fcard-float {
+  height: 100%;
+  will-change: transform;
+}
+
+.fcard {
+  transform-style: preserve-3d;
+  will-change: transform;
+  height: 100%;
+}
+
+/* Media slot — the 3D logo canvas lives here */
+.fcard__media {
+  position: relative;
+  height: 190px;
+  margin: 0.75rem 0 0.5rem;
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  transform: translateZ(28px);
+}
+
+.fcard__media canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}

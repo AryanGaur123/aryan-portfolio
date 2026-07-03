@@ -5,16 +5,7 @@
   display: flex;
   align-items: center;
   overflow: hidden;
-  background: var(--bg);
-}
-
-/* Canvas — fills entire hero, CSS only, no WebGL */
-.hero__canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+  background: transparent; /* galaxy canvas shows through from behind */
 }
 
 /* Vignette — darkens edges */
@@ -87,6 +78,7 @@
   margin-bottom: var(--s-l);
 }
 .hero__clip {
+  display: block;
   overflow: hidden;
   line-height: 1;
 }
@@ -102,6 +94,7 @@
   padding-bottom: 0.06em;
 }
 .hero__line--accent {
+  text-shadow: none; /* shadow bleeds through transparent clipped text */
   background: linear-gradient(118deg, #c0c0cc 0%, #ffffff 22%, #9898a8 42%, #f0f0f8 60%, #707080 76%, #e0e0ec 90%, #ffffff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -113,6 +106,36 @@
   0%   { background-position: 0%   50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0%   50%; }
+}
+
+/* Name gets a cosmic shimmer — the one place the galaxy palette touches type */
+.hero__line--name {
+  text-shadow: none;
+  background: linear-gradient(118deg, #ffffff 0%, #d8ccff 25%, #ffffff 45%, #9ab0ff 65%, #ffffff 82%, #e8e0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 300% 300%;
+  animation: shimmer 7s ease-in-out infinite;
+}
+
+/* Typed line holds its height so the layout never jumps between phrases */
+.hero__line--typed {
+  min-height: 1.02em;
+}
+.hero__caret {
+  display: inline-block;
+  width: 0.05em;
+  height: 0.82em;
+  margin-left: 0.06em;
+  background: var(--silver-bright);
+  vertical-align: baseline;
+  transform: translateY(0.08em);
+  animation: caret-blink 1.05s steps(1) infinite;
+}
+@keyframes caret-blink {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0; }
 }
 
 /* Meta badges */

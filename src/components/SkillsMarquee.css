@@ -1,0 +1,63 @@
+.skills-mq {
+  position: relative;
+  padding: var(--s-2xl) 0;
+  overflow: hidden;
+  /* Slight tilt makes the strips feel like orbit paths, not a ticker */
+  transform: rotate(-1.6deg) scale(1.02);
+}
+
+.skills-mq__row {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.skills-mq__track {
+  display: inline-block;
+  animation: skills-scroll 36s linear infinite;
+}
+.skills-mq__row--reverse .skills-mq__track {
+  animation: skills-scroll-rev 42s linear infinite;
+}
+
+.skills-mq__seq {
+  display: inline-block;
+}
+
+.skills-mq__item {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--text-200);
+  opacity: 0.85;
+}
+
+.skills-mq__item--hollow {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--silver-dim);
+  opacity: 0.7;
+}
+
+.skills-mq__dot {
+  margin: 0 0.55em;
+  color: var(--silver-dim);
+  -webkit-text-stroke: 0;
+}
+
+@keyframes skills-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes skills-scroll-rev {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skills-mq__track,
+  .skills-mq__row--reverse .skills-mq__track {
+    animation: none;
+  }
+}

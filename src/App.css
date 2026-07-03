@@ -1,3 +1,9 @@
+/* ── Content stacking (above the fixed galaxy canvas) ─────────────────────── */
+.site-content {
+  position: relative;
+  z-index: 1;
+}
+
 /* ── Grain overlay ────────────────────────────────────────────────────────── */
 .grain {
   position: fixed;

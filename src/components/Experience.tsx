@@ -1,37 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap } from '../lib/gsap';
+import FloatingCard from './cards/FloatingCard';
+import { CARDS } from './cards/cardData';
+import SpinningLogo from './scene/SpinningLogo';
 import './Experience.css';
-
-gsap.registerPlugin(ScrollTrigger);
-
-const CARDS = [
-  {
-    num:     '01',
-    role:    'GenAI Intern',
-    company: 'SanDisk / Western Digital',
-    period:  'Summer 2025',
-    type:    'Internship',
-    bullets: [
-      'Building multi-agent AI pipelines for internal tooling using LangGraph and LangChain.',
-      'Developing RAG architectures with semantic retrieval and LangFuse observability.',
-      'Full-stack integrations with FastAPI backends and React frontends.',
-    ],
-    stack:   ['Python', 'LangGraph', 'LangChain', 'RAG', 'FastAPI', 'React'],
-  },
-  {
-    num:     '02',
-    role:    'B.S. Computer Engineering',
-    company: 'San Jose State University',
-    period:  '2023 — 2027',
-    type:    'Education',
-    bullets: [
-      'Studying digital systems, FPGA design, EE fundamentals, and embedded software.',
-      'Coursework in Verilog, circuit analysis, computer architecture, and C++.',
-    ],
-    stack:   ['Verilog', 'FPGA', 'C++', 'Assembly', 'Circuit Design', 'Embedded Systems'],
-  },
-];
 
 const Experience: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -46,10 +18,44 @@ const Experience: React.FC = () => {
         scrollTrigger: { trigger: headRef.current, start: 'top 85%' },
       });
 
-      /* Card stagger */
-      gsap.from('.exp__card', {
-        y: 60, opacity: 0, duration: 0.9, stagger: 0.15, ease: 'power3.out',
-        scrollTrigger: { trigger: cardsRef.current, start: 'top 80%' },
+      /* Card entrances — alternating 3D fly-in from the sides, rotating
+         into place with depth. Targets the outer wrap so Framer Motion's
+         float/tilt transforms on inner layers never fight these tweens. */
+      gsap.utils.toArray<HTMLElement>('.fcard-wrap').forEach((el, i) => {
+        const fromLeft = i % 2 === 0;
+
+        gsap.from(el, {
+          x: fromLeft ? -140 : 140,
+          y: 110,
+          rotateY: fromLeft ? -22 : 22,
+          rotateX: 10,
+          scale: 0.82,
+          opacity: 0,
+          transformPerspective: 1200,
+          duration: 1.25,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%' },
+        });
+
+        /* Cascading content reveal once the card lands */
+        gsap.from(el.querySelectorAll('.exp__bullets li, .exp__tag'), {
+          y: 18, opacity: 0,
+          duration: 0.55, stagger: 0.05, ease: 'power2.out', delay: 0.45,
+          scrollTrigger: { trigger: el, start: 'top 88%' },
+        });
+
+        /* Counter-parallax — cards drift at different rates while the
+           section scrolls through, so the grid feels alive in space */
+        gsap.to(el, {
+          yPercent: fromLeft ? -5 : 5,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: cardsRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.2,
+          },
+        });
       });
     }, sectionRef);
     return () => ctx.revert();
@@ -64,36 +70,13 @@ const Experience: React.FC = () => {
         </div>
 
         <div ref={cardsRef} className="exp__grid">
-          {CARDS.map(card => (
-            <div key={card.num} className="exp__card" data-hover>
-              {/* Card inner shimmer */}
-              <div className="exp__card-shine" aria-hidden="true" />
-
-              <div className="exp__card-top">
-                <span className="exp__num">{card.num}</span>
-                <span className="exp__type">{card.type}</span>
-              </div>
-
-              <div className="exp__card-body">
-                <p className="exp__period">{card.period}</p>
-                <h3 className="exp__role">{card.role}</h3>
-                <p className="exp__company">{card.company}</p>
-              </div>
-
-              <div className="exp__divider" />
-
-              <ul className="exp__bullets">
-                {card.bullets.map((b, i) => (
-                  <li key={i}>{b}</li>
-                ))}
-              </ul>
-
-              <div className="exp__stack">
-                {card.stack.map(s => (
-                  <span key={s} className="exp__tag">{s}</span>
-                ))}
-              </div>
-            </div>
+          {CARDS.map((card, i) => (
+            <FloatingCard
+              key={card.num}
+              card={card}
+              index={i}
+              media={card.logo ? (hovered) => <SpinningLogo config={card.logo!} hovered={hovered} /> : undefined}
+            />
           ))}
         </div>
       </div>

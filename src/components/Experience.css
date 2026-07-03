@@ -37,7 +37,10 @@
 /* Card */
 .exp__card {
   position: relative;
-  background: var(--surface-1);
+  /* Glassy — the galaxy bleeds through behind the card */
+  background: rgba(15, 15, 22, 0.62);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border);
   border-radius: var(--radius-l);
   padding: var(--s-xl);
@@ -45,13 +48,12 @@
   flex-direction: column;
   gap: var(--s-m);
   overflow: hidden;
+  /* transform is owned by Framer Motion (tilt) — never transition it here */
   transition: border-color var(--dur-base) var(--ease-out-expo),
-              transform var(--dur-base) var(--ease-out-expo),
               box-shadow var(--dur-base) var(--ease-out-expo);
 }
 .exp__card:hover {
   border-color: var(--border-mid);
-  transform: translateY(-4px);
   box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(160,160,200,0.08);
 }
 
