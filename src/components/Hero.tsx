@@ -57,6 +57,32 @@ const Hero: React.FC = () => {
     return () => ctx.revert();
   }, []);
 
+  /* Headline leans toward the cursor in 3D — the hero text floats in the
+     same space as the galaxy instead of sitting flat on it. quickTo keeps
+     it on GSAP's ticker; springy but never re-renders React. */
+  useEffect(() => {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const target = rootRef.current?.querySelector('.hero__text');
+    if (!target) return;
+
+    gsap.set(target, { transformPerspective: 900 });
+    const toRX = gsap.quickTo(target, 'rotationX', { duration: 0.9, ease: 'power3' });
+    const toRY = gsap.quickTo(target, 'rotationY', { duration: 0.9, ease: 'power3' });
+
+    const onMove = (e: MouseEvent) => {
+      const nx = (e.clientX / window.innerWidth) * 2 - 1;
+      const ny = (e.clientY / window.innerHeight) * 2 - 1;
+      toRY(nx * 3);
+      toRX(-ny * 2.2);
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      gsap.set(target, { clearProps: 'transform' });
+    };
+  }, []);
+
   return (
     <section className="hero" id="hero" ref={rootRef}>
       {/* Vignette */}

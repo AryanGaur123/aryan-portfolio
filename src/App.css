@@ -16,6 +16,16 @@
   background-size: 200px 200px;
 }
 
+/* ── Cursor comet trail ───────────────────────────────────────────────────── */
+.cursor-trail {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9997; /* under the cursor dot, over everything else */
+}
+
 /* ── Custom cursor ────────────────────────────────────────────────────────── */
 .cursor {
   position: fixed;

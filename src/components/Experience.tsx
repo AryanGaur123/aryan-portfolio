@@ -4,12 +4,16 @@ import FloatingCard from './cards/FloatingCard';
 import { CARDS } from './cards/cardData';
 import SpinningLogo from './scene/SpinningLogo';
 import ScrambleText from './layout/ScrambleText';
+import { useSectionDrift } from '../hooks/useSectionDrift';
 import './Experience.css';
 
 const Experience: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const headRef    = useRef<HTMLDivElement>(null);
   const cardsRef   = useRef<HTMLDivElement>(null);
+
+  /* Whole section docks in as a reclined 3D panel */
+  useSectionDrift(sectionRef, '.exp__drift');
 
   useEffect(() => {
     const isTouch = window.matchMedia('(pointer: coarse)').matches;
@@ -70,7 +74,7 @@ const Experience: React.FC = () => {
 
   return (
     <section className="exp" id="experience" ref={sectionRef}>
-      <div className="container">
+      <div className="container exp__drift">
         <div ref={headRef} className="exp__head">
           <span className="exp__label">Experience</span>
           <h2 className="exp__title"><ScrambleText text="Where I've been." /></h2>

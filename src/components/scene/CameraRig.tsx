@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { scrollState } from '../../lib/lenis';
 
 const BASE = new THREE.Vector3(0, 1.4, 4.6);
+const BASE_FOV = 55;
 
 /**
  * Cursor-lerped parallax + scroll-driven drift for the galaxy camera.
@@ -38,6 +39,16 @@ const CameraRig: React.FC = () => {
 
     lookTarget.current.set(mouse.current.x * 0.25, -p * 1.1, 0);
     camera.lookAt(lookTarget.current);
+
+    /* Warp kick — scroll velocity widens the FOV like the ship is
+       accelerating, then eases back to cruise when the scroll settles. */
+    const cam = camera as THREE.PerspectiveCamera;
+    const fovTarget = BASE_FOV + Math.min(Math.abs(scrollState.velocity) * 0.24, 14);
+    const nextFov = cam.fov + (fovTarget - cam.fov) * damp;
+    if (Math.abs(nextFov - cam.fov) > 0.001) {
+      cam.fov = nextFov;
+      cam.updateProjectionMatrix();
+    }
   });
 
   return null;

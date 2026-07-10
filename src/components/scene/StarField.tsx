@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import starVert from '../../assets/shaders/starfield.vert.glsl?raw';
 import starFrag from '../../assets/shaders/starfield.frag.glsl?raw';
+import { scrollState } from '../../lib/lenis';
 
 export interface StarFieldProps {
   count?: number;
@@ -28,6 +29,7 @@ const PARAMS = {
  */
 const StarField: React.FC<StarFieldProps> = ({ count = 8000, animate = true }) => {
   const material = useRef<THREE.ShaderMaterial>(null);
+  const warpTime = useRef(0);
 
   const geometry = useMemo(() => {
     const positions = new Float32Array(count * 3);
@@ -78,9 +80,13 @@ const StarField: React.FC<StarFieldProps> = ({ count = 8000, animate = true }) =
     []
   );
 
-  useFrame((state) => {
+  useFrame((_, delta) => {
     if (material.current && animate) {
-      material.current.uniforms.uTime.value = state.clock.elapsedTime;
+      // Warp spin — scrolling accelerates galactic time, so the spiral
+      // visibly winds faster while the page is in motion.
+      const boost = Math.min(Math.abs(scrollState.velocity) * 0.08, 3);
+      warpTime.current += delta * (1 + boost);
+      material.current.uniforms.uTime.value = warpTime.current;
     }
   });
 

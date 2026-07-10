@@ -1,18 +1,38 @@
 import React, { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap } from '../lib/gsap';
+import { useSectionDrift } from '../hooks/useSectionDrift';
 import './Contact.css';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const LINKS = [
   { label: 'Email',    href: 'mailto:gauraryan1027@gmail.com', display: 'gauraryan1027@gmail.com' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/gauraryan', display: 'linkedin.com/in/gauraryan' },
 ];
 
+/** One statement line split into per-character spans for the scatter assembly. */
+const AssembleLine: React.FC<{ text: string; silver?: boolean }> = ({ text, silver }) => (
+  <span className="contact__line contact__line--assemble" aria-hidden="true">
+    {text.split('').map((ch, i) =>
+      ch === ' ' ? (
+        <span key={i} className="contact__char contact__char--space" />
+      ) : (
+        <span
+          key={i}
+          className={`contact__char${silver ? ' contact__char--silver' : ''}`}
+          style={silver ? { animationDelay: `${i * -0.35}s` } : undefined}
+        >
+          {ch}
+        </span>
+      )
+    )}
+  </span>
+);
+
 const Contact: React.FC = () => {
   const sectionRef  = useRef<HTMLElement>(null);
   const statRef     = useRef<HTMLDivElement>(null);
+
+  /* Whole inner block docks in as a reclined 3D panel */
+  useSectionDrift(sectionRef, '.contact__inner');
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -21,11 +41,26 @@ const Contact: React.FC = () => {
         xPercent: -50, ease: 'none', duration: 14, repeat: -1,
       });
 
-      /* Statement reveal */
-      gsap.from('.contact__line-wrap', {
-        yPercent: 110, opacity: 0,
-        duration: 1.0, stagger: 0.12, ease: 'power3.out',
-        scrollTrigger: { trigger: statRef.current, start: 'top 80%' },
+      /* Statement assembles from scattered starstuff — every character
+         scrubs in from its own random drift position/rotation, so the
+         headline literally coalesces as you approach it. */
+      gsap.utils.toArray<HTMLElement>('.contact__char:not(.contact__char--space)').forEach((el) => {
+        gsap.fromTo(el,
+          {
+            x: gsap.utils.random(-150, 150),
+            y: gsap.utils.random(-170, 110),
+            rotation: gsap.utils.random(-75, 75),
+            scale: gsap.utils.random(0.3, 1.7),
+            opacity: 0,
+          },
+          {
+            x: 0, y: 0, rotation: 0, scale: 1, opacity: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: statRef.current, start: 'top 95%', end: 'top 40%', scrub: true,
+            },
+          }
+        );
       });
 
       /* Links */
@@ -56,14 +91,10 @@ const Contact: React.FC = () => {
 
       <div className="container">
         <div className="contact__inner">
-          {/* Big statement */}
-          <div ref={statRef} className="contact__statement">
-            <div className="contact__line-wrap">
-              <span className="contact__line">Let's build</span>
-            </div>
-            <div className="contact__line-wrap">
-              <span className="contact__line contact__line--silver">something.</span>
-            </div>
+          {/* Big statement — chars assemble on scroll */}
+          <div ref={statRef} className="contact__statement" aria-label="Let's build something.">
+            <AssembleLine text="Let's build" />
+            <AssembleLine text="something." silver />
           </div>
 
           {/* Sub-copy */}

@@ -59,10 +59,8 @@
 
 /* Statement */
 .contact__statement {
-  overflow: hidden;
-}
-.contact__line-wrap {
-  overflow: hidden;
+  /* No overflow clipping — chars scatter well outside the box mid-assembly */
+  overflow: visible;
 }
 .contact__line {
   display: block;
@@ -73,7 +71,18 @@
   line-height: 1.0;
   color: var(--text-100);
 }
-.contact__line--silver {
+/* Per-character spans — inline-block so GSAP can transform each glyph.
+   The silver gradient lives on the chars (not the line): background-clip
+   on a parent doesn't survive transformed inline children. */
+.contact__char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+.contact__char--space {
+  display: inline-block;
+  width: 0.28em;
+}
+.contact__char--silver {
   background: linear-gradient(118deg, #c0c0cc 0%, #ffffff 22%, #9898a8 42%, #f0f0f8 60%, #707080 76%, #e0e0ec 90%, #ffffff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

@@ -25,7 +25,7 @@ const GalaxyScene: React.FC<GalaxySceneProps> = ({
     {nebula && <Nebula />}
     {animate && <ShootingStars count={bloom ? 4 : 3} />}
     {animate && <CameraRig />}
-    <PostFX enabled={bloom} />
+    <PostFX enabled={bloom} warp={animate} />
   </>
 );
 
