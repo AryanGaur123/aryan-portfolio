@@ -9,6 +9,8 @@ import { ScrollTrigger } from './gsap';
 export const scrollState = {
   /** 0 → 1 page scroll progress */
   progress: 0,
+  /** Smoothed scroll velocity (px/frame-ish) — drives skew/inertia effects */
+  velocity: 0,
 };
 
 let lenisInstance: Lenis | null = null;
@@ -38,6 +40,9 @@ export function initLenis(): () => void {
   let rafId: number;
   const raf = (time: number) => {
     lenis.raf(time);
+    // Sample every frame (not just on scroll events) so velocity decays to 0
+    // when the smoothing settles instead of freezing at its last value.
+    scrollState.velocity = (lenis as unknown as { velocity: number }).velocity ?? 0;
     rafId = requestAnimationFrame(raf);
   };
   rafId = requestAnimationFrame(raf);

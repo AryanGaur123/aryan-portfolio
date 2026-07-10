@@ -1,6 +1,7 @@
 import React from 'react';
 import StarField from './StarField';
 import Nebula from './Nebula';
+import ShootingStars from './ShootingStars';
 import CameraRig from './CameraRig';
 import PostFX from './PostFX';
 
@@ -22,6 +23,7 @@ const GalaxyScene: React.FC<GalaxySceneProps> = ({
   <>
     <StarField count={starCount} animate={animate} />
     {nebula && <Nebula />}
+    {animate && <ShootingStars count={bloom ? 4 : 3} />}
     {animate && <CameraRig />}
     <PostFX enabled={bloom} />
   </>

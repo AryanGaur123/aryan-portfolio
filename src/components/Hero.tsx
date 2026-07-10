@@ -31,6 +31,28 @@ const Hero: React.FC = () => {
         .from('.hero__bio',      { y: 16, opacity: 0, duration: 0.7 }, 0.88)
         .from('.hero__cta',      { y: 16, opacity: 0, duration: 0.7 }, 1.0)
         .from(scrollRef.current, { opacity: 0, duration: 0.6 }, 1.2);
+
+      /* Scroll-out parallax — content, watermark and scroll cue leave at
+         different rates so the fold has depth. Scrub-only tweens: at
+         progress 0 they're identity, so they never fight the entrance. */
+      gsap.to('.hero__content', {
+        yPercent: -16, opacity: 0, ease: 'none',
+        scrollTrigger: {
+          trigger: rootRef.current, start: 'top top', end: 'bottom 30%', scrub: true,
+        },
+      });
+      gsap.to('.hero__watermark', {
+        yPercent: 24, ease: 'none',
+        scrollTrigger: {
+          trigger: rootRef.current, start: 'top top', end: 'bottom top', scrub: true,
+        },
+      });
+      gsap.to(scrollRef.current, {
+        opacity: 0, ease: 'none',
+        scrollTrigger: {
+          trigger: rootRef.current, start: 'top top', end: '25% top', scrub: true,
+        },
+      });
     }, rootRef);
     return () => ctx.revert();
   }, []);

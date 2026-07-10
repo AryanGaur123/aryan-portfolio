@@ -81,6 +81,24 @@
 }
 .exp__card:hover .exp__card-shine { opacity: 1; }
 
+/* Cursor spotlight — soft glow that tracks the pointer inside the card
+   (position vars written by FloatingCard's pointermove handler) */
+.exp__card-spot {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    340px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(150, 160, 255, 0.09),
+    rgba(200, 200, 240, 0.04) 40%,
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out-expo);
+}
+.exp__card:hover .exp__card-spot { opacity: 1; }
+
 /* Animated conic border on hover */
 .exp__card::after {
   content: '';

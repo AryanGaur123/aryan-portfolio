@@ -23,6 +23,15 @@ const FloatingCard: React.FC<FloatingCardProps> = ({ card, index, media }) => {
   const { rotateX, rotateY, onPointerMove, onPointerLeave } = useTilt(6);
   const [hovered, setHovered] = useState(false);
 
+  /* Tilt + cursor-spotlight share one pointermove: the tilt springs get the
+     normalized offset, the spotlight gets raw px via CSS vars. */
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    onPointerMove(e);
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+  };
+
   return (
     <div className="fcard-wrap" data-card-index={index}>
       <motion.div
@@ -39,11 +48,12 @@ const FloatingCard: React.FC<FloatingCardProps> = ({ card, index, media }) => {
           className="exp__card fcard"
           data-hover
           style={{ rotateX, rotateY, transformPerspective: 1000 }}
-          onPointerMove={onPointerMove}
+          onPointerMove={handlePointerMove}
           onPointerEnter={() => setHovered(true)}
           onPointerLeave={() => { setHovered(false); onPointerLeave(); }}
         >
           <div className="exp__card-shine" aria-hidden="true" />
+          <div className="exp__card-spot" aria-hidden="true" />
 
           <div className="exp__card-top">
             <span className="exp__num">{card.num}</span>
