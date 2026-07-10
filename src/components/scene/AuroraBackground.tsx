@@ -24,6 +24,8 @@ uniform float uTime;
 uniform vec2  uMouse;   // shader space: aspect-corrected, centre origin
 uniform float uScroll;  // 0..1 page progress
 uniform float uVel;     // 0..1 scroll energy
+uniform float uIntro;   // 0..1 ignition sweep on load
+uniform vec3  uPulse;   // xy: click/tap position, z: seconds since (< 0 = idle)
 
 float hash12(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -77,14 +79,28 @@ void main() {
   float t = uTime * 0.1;
   vec3 col = vec3(0.0);
 
+  // Ignition — on load a front sweeps across and lights the ribbons
+  float front = uIntro * 2.4 - 1.2;
+  float ign = smoothstep(0.0, 0.3, front - p.x);
+  // Bright spark riding the ignition front, gone once fully lit
+  float spark = exp(-pow(p.x - front, 2.0) * 70.0) * (1.0 - uIntro);
+
   // Deep mist — barely-there colour so the black has depth
   float mist = pow(fbm(p * 2.2 + vec2(t * 0.4, -t * 0.25)), 2.5);
-  col += pal(0.62 + uScroll * 0.4) * mist * 0.055;
-  col += pal(0.15 + uScroll * 0.4) * pow(fbm(p * 1.6 - t * 0.3 + 5.0), 3.0) * 0.065;
+  col += pal(0.62 + uScroll * 0.4) * mist * 0.055 * uIntro;
+  col += pal(0.15 + uScroll * 0.4) * pow(fbm(p * 1.6 - t * 0.3 + 5.0), 3.0) * 0.065 * uIntro;
 
-  // Cursor field
+  // Cursor / touch field
   float md = length(p - m);
   float bend = exp(-md * md * 6.0);
+
+  // Click/tap shockwave — an expanding ring that displaces the ribbons
+  float ring = 0.0;
+  vec2 pp = mat2(ca, -sa, sa, ca) * uPulse.xy;
+  if (uPulse.z >= 0.0) {
+    float pd = length(p - pp);
+    ring = exp(-pow(pd - uPulse.z * 1.3, 2.0) * 55.0) * exp(-uPulse.z * 1.9);
+  }
 
   // Six ribbons of light
   for (int i = 0; i < 6; i++) {
@@ -100,8 +116,10 @@ void main() {
     float wob2 = sin(p.x * (1.8 + 0.35 * fi) - t * (0.7 + 0.12 * fi) + seed * 3.0) * 0.16;
     float y = y0 + wob * 0.5 + wob2;
 
-    // The light leans toward the cursor
+    // The light leans toward the cursor / finger
     y += bend * (m.y - y) * 0.4;
+    // The shockwave kicks the ribbons as it passes
+    y += ring * 0.06 * sin(seed * 9.0 + uPulse.z * 6.0);
 
     float d = abs(p.y - y);
     // Ribbon thickness pulses along its length
@@ -110,11 +128,15 @@ void main() {
     g = pow(g, 1.6);
 
     float hue = 0.05 + fi * 0.13 + uScroll * 0.45 + p.x * 0.05;
-    col += pal(hue) * g * (0.03 + uVel * 0.028);
+    col += pal(hue) * g * (0.03 + uVel * 0.028 + ring * 0.02) * ign;
   }
 
+  // Ignition spark + shockwave glow
+  col += pal(0.55) * spark * 0.35;
+  col += pal(0.5 + uScroll * 0.4) * ring * 0.16;
+
   // Faint aura around the cursor itself
-  col += pal(0.8 + uScroll * 0.4) * exp(-md * 9.0) * 0.05;
+  col += pal(0.8 + uScroll * 0.4) * exp(-md * 9.0) * 0.05 * uIntro;
 
   // Vignette
   col *= 1.0 - 0.4 * dot(p, p);
@@ -191,6 +213,8 @@ const AuroraBackground: React.FC<AuroraBackgroundProps> = ({
     const uMouse = gl.getUniformLocation(prog, 'uMouse');
     const uScroll = gl.getUniformLocation(prog, 'uScroll');
     const uVel = gl.getUniformLocation(prog, 'uVel');
+    const uIntro = gl.getUniformLocation(prog, 'uIntro');
+    const uPulse = gl.getUniformLocation(prog, 'uPulse');
 
     const dpr = quality === 'full' ? Math.min(window.devicePixelRatio, 1.75) : 1;
     const resize = () => {
@@ -201,14 +225,27 @@ const AuroraBackground: React.FC<AuroraBackgroundProps> = ({
     resize();
     window.addEventListener('resize', resize);
 
-    // Cursor in shader space (centre origin, aspect-corrected, y up)
+    // Pointer in shader space (centre origin, aspect-corrected, y up)
+    const toShader = (cx: number, cy: number): [number, number] => [
+      (cx - window.innerWidth * 0.5) / window.innerHeight,
+      -(cy - window.innerHeight * 0.5) / window.innerHeight,
+    ];
     let tx = 0.35, ty = 0.1; // start off-centre so the light has somewhere to lean
     let mx = tx, my = ty;
-    const onMove = (e: MouseEvent) => {
-      tx = (e.clientX - window.innerWidth * 0.5) / window.innerHeight;
-      ty = -(e.clientY - window.innerHeight * 0.5) / window.innerHeight;
-    };
+    const onMove = (e: MouseEvent) => { [tx, ty] = toShader(e.clientX, e.clientY); };
     window.addEventListener('mousemove', onMove);
+    // Mobile: the ribbons lean toward the finger while it's on the glass
+    const onTouch = (e: TouchEvent) => { [tx, ty] = toShader(e.touches[0].clientX, e.touches[0].clientY); };
+    window.addEventListener('touchstart', onTouch, { passive: true });
+    window.addEventListener('touchmove', onTouch, { passive: true });
+
+    // Click / tap → shockwave through the ribbons
+    let pulseX = 0, pulseY = 0, pulseAt = -1;
+    const onDown = (e: PointerEvent) => {
+      [pulseX, pulseY] = toShader(e.clientX, e.clientY);
+      pulseAt = performance.now();
+    };
+    window.addEventListener('pointerdown', onDown, { passive: true });
 
     let lost = false;
     const onLost = (e: Event) => { e.preventDefault(); lost = true; };
@@ -220,6 +257,10 @@ const AuroraBackground: React.FC<AuroraBackgroundProps> = ({
     let scroll = 0;
     let last = performance.now();
     let announced = false;
+    // Ignition: sweep starts shortly after the first frame (under the
+    // preloader's lift) and takes ~2.2s. Reduced motion skips straight on.
+    const introStart = performance.now() + 500;
+    const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
 
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
@@ -237,11 +278,18 @@ const AuroraBackground: React.FC<AuroraBackgroundProps> = ({
       vel += (targetVel - vel) * 0.08;
       scroll += (scrollState.progress - scroll) * 0.075;
 
+      const intro = reducedMotion
+        ? 1
+        : easeInOut(Math.min(Math.max((now - introStart) / 2200, 0), 1));
+      const pulseT = pulseAt < 0 ? -1 : (now - pulseAt) / 1000;
+
       gl.uniform2f(uRes, canvas.width, canvas.height);
       gl.uniform1f(uTime, time);
       gl.uniform2f(uMouse, mx, my);
       gl.uniform1f(uScroll, scroll);
       gl.uniform1f(uVel, vel);
+      gl.uniform1f(uIntro, intro);
+      gl.uniform3f(uPulse, pulseX, pulseY, pulseT > 3 ? -1 : pulseT);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
 
       if (!announced) {
@@ -255,6 +303,9 @@ const AuroraBackground: React.FC<AuroraBackgroundProps> = ({
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('touchstart', onTouch);
+      window.removeEventListener('touchmove', onTouch);
+      window.removeEventListener('pointerdown', onDown);
       canvas.removeEventListener('webglcontextlost', onLost);
       gl.deleteProgram(prog);
       gl.deleteShader(vs);

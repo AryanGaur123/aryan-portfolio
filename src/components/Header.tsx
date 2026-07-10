@@ -42,8 +42,16 @@ const Header: React.FC = () => {
           </svg>
         </a>
         <nav className="hdr__nav">
-          <a href="#experience" className="hdr__link" data-hover>Experience</a>
-          <a href="#contact"    className="hdr__link" data-hover>Contact</a>
+          {[['#experience', 'Experience'], ['#contact', 'Contact']].map(([href, text]) => (
+            <a key={href} href={href} className="hdr__link" data-hover aria-label={text}>
+              {/* Per-letter double-decker — letters cascade up on hover */}
+              {text.split('').map((ch, i) => (
+                <span key={i} className="hdr__ch" aria-hidden="true">
+                  <span data-ch={ch} style={{ '--i': i } as React.CSSProperties}>{ch}</span>
+                </span>
+              ))}
+            </a>
+          ))}
         </nav>
       </div>
     </header>

@@ -123,15 +123,29 @@
   max-width: 560px;
 }
 .contact__link-row {
+  position: relative;
   display: grid;
   grid-template-columns: 80px 1fr auto;
   align-items: center;
   gap: var(--s-m);
   padding: var(--s-m) 0;
   border-bottom: 1px solid var(--border);
-  transition: border-color var(--dur-fast) var(--ease-out-expo);
+  transition: border-color var(--dur-fast) var(--ease-out-expo),
+              padding-left var(--dur-base) var(--ease-out-expo);
 }
-.contact__link-row:hover { border-color: var(--border-mid); }
+/* Soft fill sweeps in behind the row */
+.contact__link-row::before {
+  content: '';
+  position: absolute;
+  inset: 0 -0.75rem;
+  background: rgba(255,255,255,0.035);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-base) var(--ease-out-expo);
+  pointer-events: none;
+}
+.contact__link-row:hover { border-color: var(--border-mid); padding-left: 0.75rem; }
+.contact__link-row:hover::before { transform: scaleX(1); }
 .contact__link-row:hover .contact__link-arrow { transform: translate(3px, -3px); }
 
 .contact__link-label {

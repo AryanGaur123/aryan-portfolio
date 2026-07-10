@@ -1,12 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 
-/** Lerped dot cursor — extracted from App.tsx. Styles live in App.css (.cursor). */
+/**
+ * Lerped dot cursor with contextual labels. Styles live in App.css (.cursor).
+ * Elements opt into a label via data-cursor-label="VIEW" — the dot grows
+ * into a small badge naming the action.
+ */
 const CustomCursor: React.FC = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const el = cursorRef.current;
-    if (!el) return;
+    const label = labelRef.current;
+    if (!el || !label) return;
     let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
     let rx = cx, ry = cy;
     let raf: number;
@@ -24,25 +30,34 @@ const CustomCursor: React.FC = () => {
     };
     tick();
 
-    const expand   = () => el.classList.add('cursor--expanded');
-    const collapse = () => el.classList.remove('cursor--expanded');
-    const nodes = document.querySelectorAll('a, button, [data-hover]');
-    nodes.forEach(node => {
-      node.addEventListener('mouseenter', expand);
-      node.addEventListener('mouseleave', collapse);
-    });
+    /* Delegated hover states — survives cards mounting/unmounting */
+    const onOver = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      const labelled = t.closest<HTMLElement>('[data-cursor-label]');
+      if (labelled) {
+        label.textContent = labelled.dataset.cursorLabel ?? '';
+        el.classList.add('cursor--labeled');
+        el.classList.remove('cursor--expanded');
+        return;
+      }
+      el.classList.remove('cursor--labeled');
+      if (t.closest('a, button, [data-hover]')) el.classList.add('cursor--expanded');
+      else el.classList.remove('cursor--expanded');
+    };
+    document.addEventListener('mouseover', onOver);
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('mousemove', onMove);
-      nodes.forEach(node => {
-        node.removeEventListener('mouseenter', expand);
-        node.removeEventListener('mouseleave', collapse);
-      });
+      document.removeEventListener('mouseover', onOver);
     };
   }, []);
 
-  return <div ref={cursorRef} className="cursor" aria-hidden="true" />;
+  return (
+    <div ref={cursorRef} className="cursor" aria-hidden="true">
+      <span ref={labelRef} className="cursor__label" />
+    </div>
+  );
 };
 
 export default CustomCursor;

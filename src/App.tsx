@@ -8,7 +8,6 @@ import Footer from './components/Footer';
 import AuroraBackground from './components/scene/AuroraBackground';
 import FallbackBackground from './components/scene/FallbackBackground';
 import CustomCursor from './components/layout/CustomCursor';
-import CursorTrail from './components/layout/CursorTrail';
 import CommandPalette from './components/layout/CommandPalette';
 import Preloader from './components/layout/Preloader';
 import { initLenis } from './lib/lenis';
@@ -32,7 +31,6 @@ const App: React.FC = () => {
         <AuroraBackground quality={tier} reducedMotion={reducedMotion} />
       )}
       <div className="grain" aria-hidden="true" />
-      <CursorTrail />
       <CustomCursor />
       <Header />
       <main className="site-content">

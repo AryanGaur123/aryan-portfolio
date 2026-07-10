@@ -86,3 +86,26 @@
 }
 .hdr__link:hover { color: var(--text-100); }
 .hdr__link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* Letter-lift — each character slides up, replaced by its twin below */
+.hdr__ch {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+.hdr__ch > span {
+  display: inline-block;
+  position: relative;
+  transition: transform 0.45s var(--ease-out-expo);
+  transition-delay: calc(var(--i) * 22ms);
+}
+.hdr__ch > span::after {
+  content: attr(data-ch);
+  position: absolute;
+  left: 0;
+  top: 100%;
+}
+.hdr__link:hover .hdr__ch > span { transform: translateY(-100%); }
+@media (prefers-reduced-motion: reduce) {
+  .hdr__link:hover .hdr__ch > span { transform: none; }
+}

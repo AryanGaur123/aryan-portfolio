@@ -98,3 +98,26 @@ ul { list-style: none; }
   margin-inline: auto;
   padding-inline: clamp(1.25rem, 5vw, 3rem);
 }
+
+/* ── Platform polish ──────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(59, 130, 246, 0.55); /* electric blue */
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;     /* wins over background-clip text */
+}
+
+:focus-visible {
+  outline: 1px solid var(--glow-teal);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #050507; }
+::-webkit-scrollbar-thumb {
+  background: #1c1c26;
+  border-radius: 5px;
+  border: 2px solid #050507;
+}
+::-webkit-scrollbar-thumb:hover { background: #2e2e40; }
+html { scrollbar-color: #1c1c26 #050507; scrollbar-width: thin; }

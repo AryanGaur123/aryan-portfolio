@@ -16,16 +16,6 @@
   background-size: 200px 200px;
 }
 
-/* ── Cursor comet trail ───────────────────────────────────────────────────── */
-.cursor-trail {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 9997; /* under the cursor dot, over everything else */
-}
-
 /* ── Custom cursor ────────────────────────────────────────────────────────── */
 .cursor {
   position: fixed;
@@ -47,5 +37,26 @@
   height: 40px;
   opacity: 0.6;
 }
+
+/* Labeled state — the dot becomes a small action badge */
+.cursor__label {
+  display: none;
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #060608;
+  user-select: none;
+}
+.cursor--labeled {
+  width: 58px;
+  height: 58px;
+  opacity: 1;
+  mix-blend-mode: normal; /* keep the label crisp */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cursor--labeled .cursor__label { display: block; }
 
 @media (pointer: coarse) { .cursor { display: none; } }

@@ -14,7 +14,16 @@
   height: 100%;
 }
 
-/* Media slot — the 3D logo canvas lives here */
+/* Depth stack — card internals sit at different heights so the pointer
+   tilt produces true parallax (containers only: their children are GSAP
+   tween targets whose transforms would fight a translateZ) */
+.exp__card-top  { transform: translateZ(30px); }
+.exp__card-body { transform: translateZ(22px); }
+.exp__divider   { transform: translateZ(12px); }
+.exp__bullets   { transform: translateZ(16px); }
+.exp__stack     { transform: translateZ(24px); }
+
+/* Media slot — the logo plate lives here */
 .fcard__media {
   position: relative;
   height: 190px;
