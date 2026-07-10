@@ -9,6 +9,7 @@
     radial-gradient(ellipse 90% 80% at 50% 110%, rgba(255,255,255,0.03), transparent 60%),
     #0a0a10;
   overflow: hidden;
+  perspective: 700px;
 }
 
 /* Brand-tinted glow behind the mark — breathes; flares on hover */
@@ -27,11 +28,21 @@
   50%      { transform: scale(1.12); }
 }
 
-/* The mark itself — metallic gradient clipped by the SVG mask */
-.logo-plate__mark,
-.logo-plate__sheen {
+/* The 3D block — GSAP scrubs its rotation with scroll */
+.logo-plate__3d {
   position: absolute;
   inset: 18%;
+  transform-style: preserve-3d;
+  transform: rotateY(-8deg) rotateX(7deg); /* resting pose pre-scrub / reduced motion */
+}
+
+/* Every layer shares the logo mask */
+.logo-plate__slice,
+.logo-plate__mark,
+.logo-plate__glint,
+.logo-plate__sheen {
+  position: absolute;
+  inset: 0;
   -webkit-mask-image: var(--logo-url);
   mask-image: var(--logo-url);
   -webkit-mask-repeat: no-repeat;
@@ -41,29 +52,43 @@
   -webkit-mask-size: contain;
   mask-size: contain;
 }
-.logo-plate__mark {
-  background: linear-gradient(135deg, #d8d8e4 0%, #ffffff 30%, #9a9aac 55%, #e8e8f2 80%, #c0c0d0 100%);
-  transition: transform 0.7s var(--ease-out-expo);
-  animation: plate-float 6s ease-in-out infinite;
-}
-.logo-plate--hovered .logo-plate__mark { transform: scale(1.05); }
-@keyframes plate-float {
-  0%, 100% { translate: 0 0; }
-  50%      { translate: 0 -5px; }
+
+/* Extrusion body — dark steel slices stacked behind the face */
+.logo-plate__slice {
+  background: linear-gradient(150deg, #4a4a58 0%, #22222c 60%, #33333f 100%);
+  transform: translateZ(calc(var(--z) * -1.1px));
 }
 
-/* Sheen — a band of light sweeps across the mark on hover */
+/* Polished top face */
+.logo-plate__mark {
+  background: linear-gradient(135deg, #d8d8e4 0%, #ffffff 30%, #9a9aac 55%, #e8e8f2 80%, #c0c0d0 100%);
+  transform: translateZ(0.6px);
+  transition: transform 0.7s var(--ease-out-expo);
+}
+.logo-plate--hovered .logo-plate__mark { transform: translateZ(0.6px) scale(1.04); }
+
+/* Scroll-synced glint — a band of light crossing the metal as it rocks */
+.logo-plate__glint {
+  --glint: 50;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.55) 50%, transparent 60%);
+  background-size: 280% 100%;
+  background-position: calc(var(--glint) * 1%) 0;
+  transform: translateZ(0.8px);
+  pointer-events: none;
+}
+
+/* Hover sheen — the fast sweep, same language as the CTA */
 .logo-plate__sheen {
   background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.95) 50%, transparent 70%);
   background-size: 300% 100%;
   background-position: 120% 0;
   opacity: 0;
-  animation: plate-float 6s ease-in-out infinite;
+  transform: translateZ(1px);
 }
 .logo-plate--hovered .logo-plate__sheen {
   opacity: 1;
   transition: opacity 0.15s linear;
-  animation: plate-float 6s ease-in-out infinite, plate-sheen 0.9s var(--ease-out-expo);
+  animation: plate-sheen 0.9s var(--ease-out-expo);
 }
 @keyframes plate-sheen {
   from { background-position: 120% 0; }
@@ -71,5 +96,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .logo-plate__glow, .logo-plate__mark, .logo-plate__sheen { animation: none; }
+  .logo-plate__glow, .logo-plate__sheen { animation: none; }
 }
