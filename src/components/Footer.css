@@ -47,8 +47,8 @@
 .footer__time-dot {
   width: 5px; height: 5px;
   border-radius: 50%;
-  background: var(--silver-mid);
-  box-shadow: 0 0 5px var(--silver-mid);
+  background: var(--glow-teal);
+  box-shadow: 0 0 6px var(--glow-teal);
   animation: footer-pulse 2.4s ease-in-out infinite;
 }
 @keyframes footer-pulse {

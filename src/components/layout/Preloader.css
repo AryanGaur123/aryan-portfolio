@@ -24,9 +24,9 @@
 .preloader__mono {
   font-family: var(--font-display);
   font-size: 2.4rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.04em;
-  background: linear-gradient(118deg, #ffffff 0%, #d8ccff 40%, #9ab0ff 70%, #ffffff 100%);
+  background: linear-gradient(118deg, #ffffff 0%, #b8d8ff 40%, #7de8e0 70%, #ffffff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

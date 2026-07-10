@@ -1,5 +1,6 @@
-/* ── Google Fonts ─────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+/* ── Fonts — Clash Display (Fontshare) for display, Space Grotesk for body ── */
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 /* ── Design tokens ────────────────────────────────────────────────────────── */
 :root {
@@ -23,8 +24,13 @@
   --silver-mid:    #b0b0c0;
   --silver-dim:    #606070;
 
+  /* Electric-steel glow accents — matches the light ribbons */
+  --glow-ice:  #dbeafe;
+  --glow-teal: #3fe0d0;
+  --glow-blue: #3b82f6;
+
   /* Type */
-  --font-display: 'Syne', sans-serif;
+  --font-display: 'Clash Display', 'Space Grotesk', sans-serif;
   --font-body:    'Space Grotesk', sans-serif;
 
   /* Fluid type scale */

@@ -26,7 +26,7 @@
   right: -0.06em;
   font-family: var(--font-display);
   font-size: clamp(12rem, 28vw, 26rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.06em;
   line-height: 1;
   color: transparent;
@@ -64,8 +64,8 @@
 .hero__tag-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
-  background: var(--silver-mid);
-  box-shadow: 0 0 6px var(--silver-mid);
+  background: var(--glow-teal);
+  box-shadow: 0 0 8px var(--glow-teal);
   animation: pulse-dot 2.4s ease-in-out infinite;
 }
 @keyframes pulse-dot {
@@ -86,7 +86,7 @@
   display: block;
   font-family: var(--font-display);
   font-size: var(--step-5);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.02;
   color: var(--text-100);
@@ -95,7 +95,8 @@
 }
 .hero__line--accent {
   text-shadow: none; /* shadow bleeds through transparent clipped text */
-  background: linear-gradient(118deg, #c0c0cc 0%, #ffffff 22%, #9898a8 42%, #f0f0f8 60%, #707080 76%, #e0e0ec 90%, #ffffff 100%);
+  /* Silver with disk-heat glints */
+  background: linear-gradient(118deg, #c0c0cc 0%, #ffffff 20%, #a8e8ff 40%, #f0f0f8 58%, #3fe0d0 74%, #e0e0ec 88%, #ffffff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -111,7 +112,7 @@
 /* Name gets a cosmic shimmer — the one place the galaxy palette touches type */
 .hero__line--name {
   text-shadow: none;
-  background: linear-gradient(118deg, #ffffff 0%, #d8ccff 25%, #ffffff 45%, #9ab0ff 65%, #ffffff 82%, #e8e0ff 100%);
+  background: linear-gradient(118deg, #ffffff 0%, #b8d8ff 25%, #ffffff 45%, #7de8e0 65%, #ffffff 82%, #d6ecff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

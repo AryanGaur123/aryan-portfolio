@@ -5,7 +5,7 @@ import Experience from './components/Experience';
 import SkillsMarquee from './components/SkillsMarquee';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import GalaxyBackground from './components/scene/GalaxyBackground';
+import AuroraBackground from './components/scene/AuroraBackground';
 import FallbackBackground from './components/scene/FallbackBackground';
 import CustomCursor from './components/layout/CustomCursor';
 import CursorTrail from './components/layout/CursorTrail';
@@ -29,7 +29,7 @@ const App: React.FC = () => {
       {tier === 'fallback' ? (
         <FallbackBackground />
       ) : (
-        <GalaxyBackground tier={tier} reducedMotion={reducedMotion} />
+        <AuroraBackground quality={tier} reducedMotion={reducedMotion} />
       )}
       <div className="grain" aria-hidden="true" />
       <CursorTrail />

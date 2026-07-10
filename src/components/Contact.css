@@ -5,13 +5,24 @@
   overflow: hidden;
 }
 
+/* Scrim — a pocket of darkness behind the content so it stays readable
+   when the light ribbons drift through this section */
+.contact::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 85% 75% at 32% 58%, rgba(4,4,10,0.62), transparent 72%);
+}
+
 /* Watermark */
 .contact__watermark {
   position: absolute;
   bottom: -0.1em; right: -0.04em;
   font-family: var(--font-display);
   font-size: clamp(7rem, 18vw, 18rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.06em;
   color: transparent;
   -webkit-text-stroke: 1px rgba(160,160,190,0.045);
@@ -66,7 +77,7 @@
   display: block;
   font-family: var(--font-display);
   font-size: clamp(3rem, 8vw, 7rem);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.0;
   color: var(--text-100);
@@ -142,7 +153,7 @@
   transition: transform var(--dur-fast) var(--ease-out-expo),
               color var(--dur-fast) var(--ease-out-expo);
 }
-.contact__link-row:hover .contact__link-arrow { color: var(--text-100); }
+.contact__link-row:hover .contact__link-arrow { color: var(--glow-ice); }
 
 @media (max-width: 480px) {
   .contact__link-row {

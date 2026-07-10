@@ -26,7 +26,7 @@
 .hdr__progress-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, transparent, var(--silver-mid) 30%, var(--silver-bright) 60%, transparent);
+  background: linear-gradient(90deg, transparent, var(--glow-blue) 25%, var(--glow-teal) 55%, var(--glow-ice) 80%, transparent);
   transition: width 0.08s linear;
 }
 
@@ -79,7 +79,7 @@
   position: absolute;
   bottom: -2px; left: 0;
   width: 100%; height: 1px;
-  background: var(--silver-mid);
+  background: var(--glow-teal);
   transform: scaleX(0);
   transform-origin: right;
   transition: transform var(--dur-base) var(--ease-out-expo);

@@ -11,7 +11,7 @@ interface Particle {
   color: string;
 }
 
-const COLORS = ['#e8e8f0', '#b8a4ff', '#9ab0ff', '#ffffff'];
+const COLORS = ['#e8e8f0', '#7de8e0', '#4d8dff', '#dbeafe', '#ffffff'];
 const MAX_PARTICLES = 200;
 
 /**

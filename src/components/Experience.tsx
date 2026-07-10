@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { gsap } from '../lib/gsap';
 import FloatingCard from './cards/FloatingCard';
 import { CARDS } from './cards/cardData';
-import SpinningLogo from './scene/SpinningLogo';
+import LogoPlate from './cards/LogoPlate';
 import ScrambleText from './layout/ScrambleText';
 import { useSectionDrift } from '../hooks/useSectionDrift';
 import './Experience.css';
@@ -86,7 +86,7 @@ const Experience: React.FC = () => {
               key={card.num}
               card={card}
               index={i}
-              media={card.logo ? (hovered) => <SpinningLogo config={card.logo!} hovered={hovered} /> : undefined}
+              media={card.logo ? (hovered) => <LogoPlate config={card.logo!} hovered={hovered} /> : undefined}
             />
           ))}
         </div>
