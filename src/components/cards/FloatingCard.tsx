@@ -47,7 +47,6 @@ const FloatingCard: React.FC<FloatingCardProps> = ({ card, index, media }) => {
         <motion.div
           className="exp__card fcard"
           data-hover
-          data-cursor-label="VIEW"
           style={{ rotateX, rotateY, transformPerspective: 1000 }}
           onPointerMove={handlePointerMove}
           onPointerEnter={() => setHovered(true)}

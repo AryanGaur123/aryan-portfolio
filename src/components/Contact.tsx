@@ -105,7 +105,7 @@ const Contact: React.FC = () => {
           {/* Links */}
           <div className="contact__links">
             {LINKS.map(l => (
-              <a key={l.label} href={l.href} className="contact__link-row" data-hover data-cursor-label="OPEN" target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+              <a key={l.label} href={l.href} className="contact__link-row" data-hover target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
                 <span className="contact__link-label">{l.label}</span>
                 <span className="contact__link-arrow">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
